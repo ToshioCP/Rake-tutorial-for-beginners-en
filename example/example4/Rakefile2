@@ -1,0 +1,22 @@
+require 'rake/clean'
+
+sources = FileList["sec*.md"]
+
+task default: %w[docs/LearningRake.html docs/style.css]
+
+file "docs/LearningRake.html" => %w[LearningRake.md docs] do |t|
+  sh "pandoc -s --toc -c style.css -o #{t.name} #{t.source}"
+end
+CLEAN << "LearningRake.md"
+
+file "LearningRake.md" => sources do |t|
+  lerning_rake = t.sources.inject("") {|s1, s2| s1 << File.read(s2) + "\n\n"}
+  File.write("LearningRake.md", lerning_rake)
+end
+
+file "docs/style.css" => %w[style.css docs] do |t|
+  cp t.source, t.name
+end
+
+directory "docs"
+CLOBBER << "docs"

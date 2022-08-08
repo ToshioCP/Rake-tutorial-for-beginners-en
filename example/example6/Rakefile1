@@ -1,0 +1,56 @@
+require 'rake/clean'
+
+sources = FileList["sec1.md", "sec2.md", "sec3.md", "sec4.md"]
+sources_pdf = sources.pathmap("%{sec,sec_pdf}p")
+
+desc "Create both HTML and PDF files."
+task default: %w[html:build pdf:build]
+
+namespace "html" do
+  desc "Create a HTML file."
+  task build: %w[docs/LearningRake.html docs/style.css]
+  
+  file "docs/LearningRake.html" => %w[LearningRake.md docs] do |t|
+    sh "pandoc -s --toc --metadata-file=metadata_html.yml -c style.css -o #{t.name} #{t.source}"
+  end
+  CLEAN << "LearningRake.md"
+  
+  file "LearningRake.md" => sources do |t|
+    learning_rake = t.sources.inject("") {|s1, s2| s1 << File.read(s2) + "\n\n"}
+    File.write("LearningRake.md", learning_rake)
+  end
+
+  file "docs/style.css" => %w[style.css docs] do |t|
+    cp t.source, t.name
+  end
+
+  directory "docs"
+  CLOBBER << "docs"
+end
+
+namespace "pdf" do
+  desc "Create a PDF file."
+  task build: %w[LearningRake.pdf]
+
+  file "LearningRake.pdf" => "LearningRake_pdf.md" do |t|
+    sh "pandoc -s --pdf-engine lualatex --metadata-file=metadata_pdf.yml -o #{t.name} #{t.source}"
+  end
+  CLEAN << "LearningRake_pdf.md"
+  
+  file "LearningRake_pdf.md" => sources_pdf do |t|
+    learning_rake = t.sources.inject("") {|s1, s2| s1 << File.read(s2) + "\n\n"}
+    File.write("LearningRake_pdf.md", learning_rake)
+  end
+  CLEAN.include sources_pdf
+
+  sources_pdf.each do |dst|
+    src = dst.sub(/_pdf/,"")
+    file dst => src do
+      s = File.read(src)
+      s = s.gsub(/^###/,"#").gsub(/^####/,"##").gsub(/^#####/,"###")
+      File.write(dst, s)
+    end
+  end
+
+  CLOBBER << "LearningRake.pdf"
+end

@@ -1,0 +1,21 @@
+# .gitignore
+
+# Ignore all backupfiles made by gedit
+*~
+
+# Ignore intermediate file.
+LearningRake.md
+
+# Ignore generated files under the example folder
+example/example2/*.bak
+example/example2/~*.txt
+example/example3/*.bak
+example/example3/dst
+example/example4/LearningRake.md
+example/example4/dst
+example/example5/LearningRake.md
+example/example5/LearningRake.pdf
+example/example6/LearningRake.md
+example/example6/dst
+example/example6/LearningRake.pdf
+example/example8/sec*.txt

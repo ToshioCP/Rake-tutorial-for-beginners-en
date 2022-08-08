@@ -1,0 +1,49 @@
+# Make a "ajitama" (flavored egg)
+
+task :Boil_hot_water do
+  print "Boil water.\n"
+end
+
+task Boil_eggs: :Boil_hot_water do
+  print "Boil eggs.\n"
+end
+
+task :Wait_8_minutes => :Boil_eggs do
+  print "Wait 8 minutes.\n"
+end
+
+task Add_ice_into_the_bowl: :Wait_8_minutes do
+  print "Add ice to the bowl.\n"
+end
+
+task Fill_water_in_bowl: :Add_ice_into_the_bowl do
+  print "Fill the bowl with water.\n"
+end
+
+task Put_the_eggs_in_the_bowl: :Fill_water_in_bowl do
+  print "Put the eggs into the bowl.\n"
+end
+
+task Shell_the_eggs: :Put_the_eggs_in_the_bowl do
+  print "Shell the eggs.\n"
+end
+
+task :Write_the_date_on_the_ziplock do
+  print "Write the date on the ziplock.\n"
+end
+
+task Put_mentsuyu_into_a_ziplock: [:Write_the_date_on_the_ziplock, :Shell_the_eggs] do
+  print "Put mentsuyu (Japanese soup base) into a ziplock.\n"
+end
+
+task Put_the_eggs_in_a_ziplock: :Put_mentsuyu_into_a_ziplock do
+  print "Put eggs in a ziplock.\n"
+end
+
+task Keep_it_in_the_fridge_one_night: :Put_the_eggs_in_a_ziplock do
+  print "Keep it in the fridge one night.\n"
+end
+
+task Ajitama: :Keep_it_in_the_fridge_one_night do
+  print "Ajitama is ready.\n"
+end
