@@ -8,31 +8,29 @@ Specifically, they are "FileList", "pathmap" and "directory task".
 FileList is an array-like object of filenames.
 It can be manipulated like an array of strings and has some nice features.
 
-Let's start with the way how to create an instance of the class FileList.
-Add `[ ]` to the class name "FileList", and write the file names in the brackets separated by commas.
-Now you have a FileList instance with the files.
+The `[ ]` class method creates a FileList instance which has elements of files given with the arguments.
+The arguments are files separated with commas.
 
 ```ruby
 files = FileList["a.txt", "b.txt"]
 p files
 
-task:default
+task :default
 ```
 
-If you don't define a default task, you will get an error when you run rake from the command line.
-I have defined a default task that does nothing to avoid that.
+The variable `files` is assigned a FileList instance which has "a.txt" amd "b.txt" as its elements.
 
-Now let's see how rake works.
+If no task is defined in the Rakefile, Rake issues "Don't know how to build task 'default'" error.
+To avoid thus, a default task is defined in the fourth line.
 
-1. Initialize the rake environment
+When Rake is invoked from the command line, it behaves like this:
+
+1. Initialize the Rake environment
 2. Load the Rakefile. The Rakefile is then executed (as Ruby code)
-3. Call default task
+3. Invoke default task
 
-On the second, Rakefile is loaded and executed.
-Then a FileList instance is created, displayed, and the default task defined.
+When the Rakefile is executed, a FileList instance is created, displayed, and the default task is defined.
 Note that these are done before the default task invocation.
-
-The Rakefile above has been saved as `example/example3/Rakefile1`.
 
 ```
 $ rake -f Rakefile1
@@ -49,7 +47,7 @@ p files
 task:default
 ```
 
-This Rakdfile is `example/example3/Ralefile2`.
+Run Rake.
 
 ```
 $ rm d.txt
@@ -64,12 +62,11 @@ $
 
 Please refer to the [Ruby documentation](https://docs.ruby-lang.org/en/master/Dir.html#method-c-glob) for glob patterns.
 
-#### Backup all text files
+#### Backup all the text files
 
 Let's think about the way to back up all the text files.
 Here, "text file" is a file with ".txt" extension.
-Note that "all the text files" are determined at the time rake runs not the time you write the Rakefile.
-Text files may be added or removed , so "all text files at the moment" is not necessarily the same as "all text files at the time rake runs".
+Note that "all the text files" are determined at the time rake runs, not the time you write the Rakefile.
 So you have to create a mechanism in the Rakefile to get text files.
 
 ```ruby
@@ -79,7 +76,6 @@ files = FileList["*.txt"]
 When this line is executed, ruby gets files that match "\*.txt".
 The files include "~a.txt".
 But it should be excluded since it is a backup file whose original is "a.txt".
-Exclude method is the one you need.
 
 ```ruby
 files = FileList["*.txt"]
@@ -89,7 +85,7 @@ p files
 task:default
 ```
 
-The exclude method adds the given pattern to its own exclusion list.
+The `exclude` method adds the given pattern to its own exclusion list.
 
 ```
 $ rake -f Rakefile3
@@ -97,18 +93,18 @@ $ rake -f Rakefile3
 $
 ```
 
-"~a.txt" has been removed from `files`.
+The file "~a.txt" is removed from the variable `files`.
 
 The variable `files` is now set to the file list of the original files.
-On the other hand, the name of the file task is the backup file name.
-For example, in a file task that copies "a.txt" to "a.bak",
+They are prerequisites.
+For example,
 
 - Task name is "a.bak"
 - Dependent file name is "a.txt"
 
 In order to define a file task, it is necessary to obtain the task name (destination filename) from the source filename.
-To do so, use the ext method of FileList class.
-The ext method changes the extension of all files included in the file list.
+To do so, use the `ext` method of FileList class.
+The `ext` method changes the extension of all files included in the file list.
 
 ```ruby
 names = sources.ext(".bak")
@@ -128,7 +124,7 @@ rule ".bak" => ".txt" do |t|
 end
 ```
 
-This file has been saved as `example/example3/Rakefile4`.
+Run Rake.
 
 ```
 $rake -f Rakefile4
@@ -138,7 +134,7 @@ cp c.txt c.bak
 $
 ```
 
-Now add a text file and run rake again.
+Now add a text file and run Rake again.
 
 ```
 $ echo Appended text file. >d.txt
@@ -151,16 +147,16 @@ cp d.txt d.bak
 $
 ```
 
-A new file "d.txt" has been also copied.
-This means that Rakefile makes backup files of "all text files" at the time Rake runs.
+A new file "d.txt" is also copied.
+This means that Rakefile makes backup files of "all the text files" at the time Rake runs.
 
 The "\*.txt" file in this example is sometimes referred to as the sources and the "\*.bak" files as the targets.
 In general, it can be said that the source exists, but the target does not necessarily exist.
-Therefore, source files is often get first and then the target filenames are created from the source in Rakefile.
+Therefore, source files is often get first and then the target filenames are created from the source.
 
 #### Pathmap
 
-The pathmap method is a powerful method for FileList.
+The `pathmap` method is a powerful method for FileList.
 Originally pathmap was an instance method of the String object.
 The FileList's pathmap method performs String's pathmap for each element of the FileList.
 Pathmap returns various information depending on its arguments.
@@ -197,7 +193,7 @@ $ tree
 $
 ```
 
-Write your Rakefile like this:
+A Rakefile to test `pathmap` is like this:
 
 ```ruby
 sources = FileList["src/*.txt"]
@@ -210,7 +206,7 @@ task:default
 ```
 
 The variable `sources` contains "src/a.txt", "src/b.txt" and "src/c.txt".
-Execute rake.
+Run Rake.
 
 ```
 $ rake -f Rakefile5
@@ -242,7 +238,7 @@ names.each do |name|
 end
 ```
 
-The second line uses the path map replacement specification.
+The second line uses the `pathmap` replacement specification.
 
 - `sources` is an array `["src/a.txt", "src/b.txt", "src/c.txt"]`
 - `names` will be an array `["dst/a.txt", "dst/b.txt", "dst/c.txt"]`
@@ -254,7 +250,7 @@ Line 8 uses the string pathmap method to get the dependency filename from the ta
 - `name` is `dst/a.txt`, `dst/b.txt` or `dst/c.txt`
 - `source` will be `src/a.txt`, `src/b.txt` or `src/c.txt`
 
-Execute rake with `example/example3/Rakefile6`.
+Run Rake
 
 ```
 $ rm -rf dst
@@ -281,7 +277,7 @@ $
 > end
 > ```
 >
-> Execute rake with `example/example3/Rakefile7`)
+> Run Rake
 >
 > ```
 > $ rm dst/*
@@ -294,7 +290,7 @@ $
 >
 > Using a rule is simpler than an iterator.
 
-#### Directory Task
+#### Directory task
 
 The `directory` method creates a directory task.
 A directory task creates a directory with the task name if it does not exist.
@@ -304,9 +300,9 @@ directory "a/b/c"
 ```
 
 This directory task creates a directory "a/b/c".
-If the parents directories b and a don't exist, create them too.
+If the parent directories "b" and "a" don't exist, create them too.
 
-You can also use this to create the dst directory.
+You can also use this to create the "dst" directory.
 
 ```ruby
 sources = FileList["src/*.txt"]
@@ -323,12 +319,12 @@ names.each do |name|
 end
 ```
 
-Note that directory tasks are "tasks", so they are just defined during the Rakefile are loaded and executed.
+Note that directory tasks are "tasks", so they are just defined during the Rakefile are executed.
 The tasks need to be invoked by another task.
-So, add 'dst' to the prerequisite for `dst/a.txt`, `dst/b.txt` and `dst/c.txt`.
+So, add `dst` to the prerequisite for `dst/a.txt`, `dst/b.txt` and `dst/c.txt`.
 This makes the directory before copying.
 
-Execute rake with `-f Rakefile8`.
+Run Rake
 
 ```
 $ rm dst/*
@@ -354,3 +350,4 @@ $
 > ```
 >
 > A directory task has been added to the rule's prerequisites.
+

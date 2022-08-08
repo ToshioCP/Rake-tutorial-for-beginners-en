@@ -4,18 +4,18 @@
 
 ### Tasks
 
-This tutorial is aimed at people learning Rake for the first time, but it is also useful for those already familiar with Rake.
-This tutorial features
+This tutorial is aimed at people who learn Rake for the first time, but it is also useful for those who are already familiar with Rake.
+The feature of this tutorial is:
 
-- Explains how Rake works and how it works
-- Covers practical examples using Rake
+- Describing how to use Rake and how it works
+- Showing practical examples
 
-Through this tutorial, let's acquire the ability to use Rake for various development.
+When you finish this tutorial, you'll get the basic knowledge on Rake and apply Rake for various development.
 
 The example source codes in this tutorial are located at a GitHub repository [Rake tutorial for beginners en](https://github.com/ToshioCP/Rake-tutorial-for-beginners-en).
 Download it so that you can try the examples without typing.
 
-The paragraph that starts with the symbol \[R\] in the text is "Commentary for advanced Ruby users".
+The paragraph that starts with the symbol \[R\] is a bit high level topic for advanced Ruby users.
 *Advanced* basically refers to "a level where you can write a class".
 Other users should skip this part.
 
@@ -23,15 +23,15 @@ Other users should skip this part.
 
 Rake is a Ruby application.
 For Ruby installation, refer to [Ruby's official website](https://www.ruby-lang.org/en/documentation/installation/#package-management-systems).
-Rake is a Ruby's standard library, so it is usually included in the installed Ruby.
+Rake is a Ruby's standard library, so it is usually included in the downloaded Ruby.
 But if not,
 
-- If you installed the ruby ​​package of the Linux distribution => install its rake package.
-- If you installed by another method => Install with `gem install rake` from the command line.
+- If you installed the Ruby ​​package from your Linux distribution => install the rake package from the distribution.
+- If you installed by another method => Install Rake with `gem install rake` from the command line.
 
 #### Download examples of this document
 
-The Github repository of this documenti is [here](https://github.com/ToshioCP/Rake-tutorial-for-beginners-en).
+The GitHub repository of this documenti is [here](https://github.com/ToshioCP/Rake-tutorial-for-beginners-en).
 Click "Code" button (green button) and choose "Download ZIP".
 You can also clone the repository with git.
 
@@ -42,8 +42,8 @@ Rake is a ruby application that implements the same functions as Make.
 Make is a program developed to control the entire compilation process when compiling in C.
 But Make can control not only C, but also various compilers and translators (programs that convert from one format to another).
 Make is convenient, but its syntax is complicated.
-It's easy to understand when you're using it for the first time, but the more you use it, the more difficult it becomes to understand.
-For example:
+It's easy when you using it for the first time, but the more you use it, the more difficult it becomes.
+For example, the following is a part of a Makefile for C compiler.
 
 ```
 application: $(OBJS)
@@ -55,7 +55,7 @@ $(CC) -fPIC -c -o $(@F) $(CFLAGS) $<
 
 On the other hand, Rake is:
 
-- Easy to understand because you can use Ruby language.
+- Easy to understand because you can use any Ruby language.
 - Therefore, you can write your code clearly and flexibly.
 
 Reference:
@@ -65,8 +65,8 @@ Reference:
 
 #### Rake Basics
 
-First, the important point is the command `rake` and the file `Rakefile` placed in the current directory.
-The rake command takes a task name (tasks are explained later) as an argument.
+First, the important point is to know the command `rake` and the file `Rakefile` placed in the current directory.
+The `rake` command takes a task name (tasks are explained later) as an argument.
 
 ```
 $ rake hello
@@ -76,9 +76,9 @@ In this example the argument `hello` is the task name.
 
 `rake` will then do the following in order:
 
-- Initialize Rake
-- Load and run Rakefile (Rakefile contains task definitions)
-- Invoke a task given from the command line argument
+- Initializes Rake
+- Loads and runs Rakefile (Rakefile contains task definitions)
+- Invokes a task given from the command line argument
 
 When you use Rake, your main work is writing task definitions in your Rakefile.
 The task called from the command line must be defined in the Rakefile.
@@ -97,33 +97,33 @@ The first example below has only a name.
 task :simple_task
 ```
 
-Write the line above with your editor and save it as a file named `Rakefile`.
-The first element `task` can be considered to be a *command* which defines (or declares) a task.
+The first element `task` looks like a *command* to define (or declare) a task.
 
-In general, a *command* in a programming language is something that tells the computer to do something.
+In general, a *command* in a programming language tells the computer to do something.
 For example, in Bash, `cd`" is the *command* to change the current directory.
 When you type `cd /var` in your command line, it moves the current directory to `/var`.
-It is the result of executing the `cd` command with the `/var` argument.
+It is the result of execution of the `cd` command with the `/var` argument.
 
-Similarly, the `task` command is given with the argument `:simple_task`.
-And executing the task command creates a task with the name simple\_task.
+Similarly, the `task` command is given the argument `:simple_task`.
+And executing the task command creates a task with the name "simple\_task".
 The argument `:simple_task` is a symbol, but you can also use a string like this:
 
 ```
 task "simple_task"
 ```
 
-The both created tasks are exactly the same.
+Both lines create the same task.
 
-On the other hand, the task command is actually a Ruby method from Ruby's syntactic point of view, and `:simple_task` is an argument to the method.
-From now on, a task may be called a *command* or *methods* from the context.
+On the other hand, the `task` command is actually a Ruby method in terms of Ruby syntax.
+And `:simple_task` is an argument to the method.
+From now on, a task may be called a *command* or *methods*.
 
-- If it is focused on its "task creation" function, it will be called a *command*.
-- If it is thought as a method in Ruby's syntax, it will be called a *method*.
+- If we focus on its "task creation" function, we called it *command*.
+- If we consider it as a Ruby method, we call it *method*.
 
-I think it won't make any confusion and don't worry too much about it.
+I think it won't make any confusion and no worrying is necessary.
 
-> \[R\] From Ruby's grammar, the `task` command is a "method call", and `:simple_task` is an argument of the method.
+> \[R\] From Ruby's syntax, the `task` command is a "method call", and `:simple_task` is an argument to the method.
 > In Ruby, you can write arguments with or without parentheses so the example above is a correct ruby program.
 > If you use parentheses,
 >
@@ -133,18 +133,18 @@ I think it won't make any confusion and don't worry too much about it.
 >
 > Be careful that there's no blank between the method and the left parenthesis.
 >
-> You can define it either way, but it's better to use it without parentheses.
+> You can define it either way, but it's better to leave out parentheses.
 >
 > "Defining a task" means "creating an instance of the Task class".
-> When you create a new instance, the class's `new` method is usually called.
+> An instance is usually created with the class's `new` method.
 > But it is *not* the only way to create an instance.
-> The `task` method calls `Task.new` in its body to create an instance.
+> The `task` method calls `Task.new` in its body so that the method can create an instance.
 > In addition, the `task` method is more convenient than `new` method.
 
 Task `simple_task` has no prerequisites and actions.
 
 Let's run the task from the command line.
-If you haven't download the [repository](https://github.com/ToshioCP/Rake-tutorial-for-beginners-en), do it before executing rake.
+If you haven't download the [repository](https://github.com/ToshioCP/Rake-tutorial-for-beginners-en), do it now.
 
 It is assumed that the current directory is the top directory of the downloaded and unzipped data.
 Change your current directory to `example/example1`. 
@@ -157,20 +157,19 @@ task :simple_task
 $ rake simple_task
 ```
 
-First, make sure that there exists `Rakefile`.
-Then, run rake.
-The task `simple_task` has been called, but since it has no action, nothing happened.
+The task `simple_task` is called in the last line.
+Since it has no action, nothing happens.
 Check whether the task is defined.
 
 ```
 $ rake -AT
-rake simple_task#
+rake simple_task #
 ```
 
-Option AT displays all registered tasks.
-Now you know that simple\_task is defined.
+Option `-AT` displays all registered tasks.
+Now you know that "simple\_task" is defined.
 
-#### actions
+#### Actions
 
 Actions are represented by a block of the task method.
 
@@ -181,7 +180,7 @@ end
 ```
 
 This task is named `hello`.
-hello has no prerequisites.
+It has no prerequisites.
 The action is to display "Hello world!" on the screen.
 
 The task command above is written in `Rakefile2`, not `Rakefile`.
@@ -197,18 +196,20 @@ $ rake -f Rakefile2 hello
 Hello world!
 ```
 
-The task hello was invoked and its action was executed.
-As a result, the string "Hello world!" was displayed.
+The task hello is invoked and its action is executed.
+As a result, the string "Hello world!" is displayed.
 
 > \[R\] Ruby has two ways of representing blocks: (1) curly braces (`{` and `}`) and (2) `do` and `end`.
 > Both will work in a Rakefile, but it's better to use `do` and `end` for readability.
-> Also, if you use curly braces and write like this, it won't work:
+> Also, if you use curly braces like this, it won't work:
 >
 > ```ruby
 > task :hello {print "Hello world!\n"}
 > ```
 >
 > This causes an error because curly braces bind more tightly to the preceding expression than do-ends.
+> So, Ruby recognaizes that `:hello` and the curly brace are a syntactic group to parse.
+> Therefore, the curly braces aren't seen a block for the 'task' method.
 > Please see [Ruby FAQ](https://www.ruby-lang.org/en/documentation/faq/5/) for further information.
 > To fix this, put parentheses around the argument.
 >
@@ -216,8 +217,8 @@ As a result, the string "Hello world!" was displayed.
 > task(:hello) {print "Hello world!\n"}
 > ```
 >
-> In Rakefile, it is good to express a task as if it were a command.
-> Therefore, writing a task command with parenthses is NOT recommended.
+> In Rakefile, it is good to write a `task` as if it were a command.
+> Therefore, writing a task command with parentheses is NOT recommended.
 >
 > Thanks to Ruby's flexible syntax such as omitting parentheses in arguments, Ruby can make methods look like commands.
 > And you can make a new language for a specific purpose.
@@ -226,7 +227,7 @@ As a result, the string "Hello world!" was displayed.
 
 #### Prerequisites
 
-If a task has prerequistes, it call them before its action is invoked.
+If a task has prerequistes, it calls them before its action is invoked.
 
 A task definition with prerequisites is like this:
 
@@ -258,14 +259,13 @@ task: first do
 end
 ```
 
-When you call the task "second", the prerequiste "first" is invoked before the invocation of "second".
+When you call the task "second", the prerequisite "first" is invoked before the execution of "second".
 
 ```
-invoke first => invoke second
+invoke first => execute second
 ```
 
 Now, run rake.
-THe name of the above file is "Rakefile3".
 
 ```
 $ rake -f Rakefile3 second
@@ -275,7 +275,7 @@ Second.
 
 #### Rakefile example
 
-Utagawa-san's [Write a recipe for ajitama in a Makefile](https://blog.utgw.net/entry/2022/06/22/221311) was so interesting that I made a Rake version of it.
+Utagawa-san's [Write a recipe for ajitama in a Makefile](https://blog.utgw.net/entry/2022/06/22/221311) was so interesting that I made its Rake version.
 
 ```ruby
 # Make a "ajitama" (flavored egg)
@@ -366,19 +366,20 @@ to:
 task Put_the_eggs_in_a_ziplock: [:Put_mentsuyu_into_a_ziplock, :Shell_the_eggs] do
 ```
 
-Then, `:Shell_the_eggs` is a prerequisite in the two different tasks.
+Then, `:Shell_the_eggs` is a prerequisite in two different tasks.
 So, It is invoked twice, but the second invocation is ignored.
 And the result is the same as before.
 
 > \[R\] The Task class has two instance methods "invoke" and "execute".
 > "Invoke" performs the action only once, while "execute" performs it as many times as the method is called.
 > So, [Rake documentation](https://ruby.github.io/rake/doc/glossary_rdoc.html) distinguishes the two words "call" and "execute".
-> There may be some ambiguous parts in this tutorial, but I don't think they bring any big confusion.
+> I use the two words without exact distinction in this tutorial.
+> Though there may exist some ambiguous parts in this tutorial, I don't think they bring any big confusion.
 > Note that "invoke" calls the prerequisites before performing its own task, but "execute" does not call the prerequisites.
 
-#### Strings can be used for task names instead of symbols.
+#### Strings can be used for task names instead of symbols
 
-So far we've used symbols in task names, but you can also use strings.
+We've used symbols in task names, but you can also use strings.
 
 ```
 task "simple_task"
@@ -387,9 +388,9 @@ task "second" => "first"
 
 It is possible to write it like this.
 To describe a hash with a symbol, you can write something like "\{abc: :def\}", but you can't use this if the symbol starts with a number.
-"\{0abc: :def\}" and "\{abc: :2def\}" are syntax errors.
+"\{0abc: :def\}" and "\{abc: :2def\}" causes syntax errors.
 It must be written like "\{:'0abc' => :def\}" and "\{abc: :'2def'\}".
-There is no such problems if you use strings.
+If you use strings, no such problem happens.
 
 The following format is often used.
 
@@ -406,3 +407,4 @@ If you use % notation in Ajitama Rakefile, it will be like this:
 ```
 task Put_mentsuyu_into_a_ziplock: %w[Write_the_date_on_the_ziplock Shell_the_eggs] do
 ```
+

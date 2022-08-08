@@ -6,7 +6,7 @@ Clean and Clobber will be also explained.
 #### Pandoc
 
 Pandoc is an application that converts among lots of document formats.
-for example,
+For example,
 
 - MS Word into HTML
 - Markdown into PDF
@@ -23,7 +23,7 @@ pandoc -o destination_file source_file
 The option `-o` tells a destination file to pandoc.
 Pandoc determines the file format from the extensions both source and destination.
 
-In the following example, a word file `example.docx` is converted into a HTML file.
+In the following example, a word file `example.docx` is converted into an HTML file.
 The word file looks like this:
 
 <div style="text-align:center;">
@@ -45,8 +45,8 @@ Double-click to display it in a browser.
   <img src="html.png" alt="HTML screen" style="max-width:100%;">
 </div>
 
-The same contents as the one in Word are displayed.
-The HTML is as follows.
+The contents are the same as the one in the Word file.
+The HTML source code is as follows.
 
 ```html
 <!DOCTYPE html>
@@ -77,17 +77,16 @@ ruby-build GitHub pages.</p>
 
 One important thing is that a header has been added.
 This is because you gave pandoc the `-s` option.
-Without `-s`, only the part between the body tags will be generated.
+Without `-s`, only the part between the body tags is generated.
 
 #### Preparation for Pandoc
 
 This section describes how to convert markdown to HTML and automate the work with Rake.
 
 Assume all source files are in the current directory.
-The generated HTML will be created in the docs directory.
+("Current directory" is `example/example4`).
+The generated HTML will be created in the `docs` directory.
 The markdown files are "sec1.md", "sec2.md", "sec3.md" and "sec4.md".
-
-The example files are in `example/example4`.
 
 In Pandoc markdown, we write metadata with % first.
 This represents the title, author and date.
@@ -137,14 +136,14 @@ body {
 }
 ```
 
-I wrote this CSS while referencing the Bootstrap's container class.
+This CSS has been written while referencing the Bootstrap's container class.
 
 This CSS adjusts the width of `body` according to the screen size.
 It's a technique called responsive web design (RWD).
 You can get more information if you search for "responsive web design" in the internet.
 
 Save this as `style.css` in the top directory, where you put your Rakefile.
-The option `-c style.css` make pandoc include the stylesheet file in the header of the HTML.
+The option `-c style.css` makes pandoc include the stylesheet file in the header of the HTML.
 
 #### Rakefile
 
@@ -190,26 +189,26 @@ Let's look at them one by one.
 - `docs/style.css` depends on `style.css` and the directory `docs`.
 - `docs` is a directory task, defined with the directory method.
 
-There is `sh` method in line 6.
+The `sh` method is in line 6.
 It is similar to Ruby's `system` method and executes the argument as an external command.
-It invokes Pandoc via `bash` on line 6.
+It invokes Pandoc via `bash`.
 The `sh` method is a Rake extension to FileUtils class.
 
 Pandoc option `--toc` automatically generates a table of contents.
 By default, Markdown headings from `#` to `###` will be put in the table of contents.
 
-The `inject` method on line 10 is the array instance method.
+The `inject` method on line 10 is an Array instance method.
 The argument (an empty string) is the initial value of `s1`.
 The values ​​in the array are sequentially assigned to `s2` and calculated, and the result is assigned to the next `s1`.
 See how the method works step by step.
 
 - The initial value is the empty string `""` (the argument).
 it is assigned to `s1` in the block.
-- `s2` is assigned the first array element, "sec1.md", and `s1 << File.read(s2) + "\n"` is executed.
+- `s2` is assigned the first array element "sec1.md", and `s1 << File.read(s2) + "\n"` is executed.
 As a result, "contents of sec1.md + newline+newline" is added to the string pointed to by `s1`, and that string becomes the return value of the `<<` method.
 The return value will be assigned to `s1` in the block when it is executed in the second time.
-(The actual proces is complicated, but in short, it can be said that `s1` is added with "contents of sec1.md + newline+newline" and becomes the next `s1`.)
-- In the second block execution, `s1` is substituted with "sec1.md contents + newline+newline", and `s2` is substituted with the next array element "sec2.md".
+(The actual process is complicated, but in short, it can be said that `s1` is added with "contents of sec1.md + newline+newline" and becomes the next `s1`.)
+- In the second block execution, `s1` is replaced with "sec1.md contents + newline+newline", and `s2` is replaced with the next array element "sec2.md".
 The block is executed, and "sec2.md contents + newline+newline" is added to `s1`.
 As a result, `s1` becomes "contents of sec1.md + newline+newline + content of sec2.md + newline+newline".
 This will be assigned to the next `s1`.
@@ -217,20 +216,19 @@ This will be assigned to the next `s1`.
 Then "contents of sec3.md + newline+newline" is added.
 - At the 4th (last) block execution, the result of the previous execution is assigned to `s1` and the next array element "sec4.md" is assigned to `s2`.
 Then "contents of sec4.md + newline+newline" is added.
-- As a result, "sec1.md contents + newline+newline + sec2.md contents + newline+newline + sec3.md contents + newline+newline + sec4.md contents + newline+newline" is substituted for `lerning_rake`.
+- As a result, "sec1.md contents + newline+newline + sec2.md contents + newline+newline + sec3.md contents + newline+newline + sec4.md contents + newline+newline" is assigned to `lerning_rake`.
 In short, it will be a string that combines four files with double newlines in between.
 Line 11 saves it to the file "LearningRake.md".
 
 There are two reasons that I added two newlines to the end of the file.
 One is that in general "a text file may or may not end with a newline".
 And the other is that a blank line is sometimes necessary before a header.
-If you connect the next file without newlines, the first character of the second file will not start the line.
+If you connect the next file without newlines, the first character of the second file may not start the line.
 Then, it is possible that the "#" of the heading is shifted from the beginning of the line and is no longer a heading.
 If there's no blank line before a header, then the header connects to the prior block.
 Pandoc sometimes see them as a single block and the header won't be converted correctly.
 Line breaks is added to avoid this.
 
-The examples are stored in `example/example4`.
 Change your current directory to `example/example4` and execute rake.
 
 ```
@@ -242,16 +240,16 @@ $
 ```
 
 Double click `example/example4/docs/LearningRake.html`, then your brouwser shows the contents.
-Make sure that the contents are the same as the ones in `sec1.md` to `sec4.md`.
 
-#### clean and clobber
+#### Clean and clobber
 
-In this process, the file "LearningRake.md" is an intermediate file, which may be useless once the target file is created.
+In the converting process, the file "LearningRake.md" has been created.
+It is an intermediate file, which may be useless once the target file is created.
 And it is probably appropriate that such intermediate files should be removed.
 The clean task performs such operations.
 
 - require `rake/clean`
-- Add intermediate files to the FileList object pointed to by the constant `CLEAN`.
+- Add intermediate files to the constant `CLEAN`, which is the FileList object.
 There are some methods to add files to `CLEAN` such as `<<`, `append`, `push`, and `include`.
 - Task `clean` removes all the files stored in `CLEAN`
 
@@ -260,7 +258,7 @@ Another useful FileList is `CLOBBER`.
 - The clobber task deletes files registered with `CLEAN`.
 - In addition, it deletes the files registered in `CLOBBER`.
 
-Now, the Rakefile with `CLEAN` and `CLOBBER` looks like this:
+Now, the Rakefile with `CLEAN` and `CLOBBER` is like this:
 
 ```ruby
 require 'rake/clean'
