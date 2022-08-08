@@ -2,16 +2,16 @@ require 'rake/clean'
 
 sources = FileList["sec*.md"]
 
-task default: %w[docs/learningRake.html docs/style.css docs/word.png docs/html.png]
+task default: %w[docs/LearningRake.html docs/style.css docs/word.png docs/html.png]
 
-file "docs/learningRake.html" => %w[learningRake.md docs] do |t|
+file "docs/LearningRake.html" => %w[LearningRake.md docs] do |t|
   sh "pandoc -s --toc -c style.css -o #{t.name} #{t.source}"
 end
-CLEAN << "learningRake.md"
+CLEAN << "LearningRake.md"
 
-file "learningRake.md" => sources do |t|
+file "LearningRake.md" => sources do |t|
   firstrake = t.sources.inject("") {|s1, s2| s1 << File.read(s2) + "\n"}
-  File.write("learningRake.md", firstrake)
+  File.write("LearningRake.md", firstrake)
 end
 
 file "docs/style.css" => %w[style.css docs] do |t|
