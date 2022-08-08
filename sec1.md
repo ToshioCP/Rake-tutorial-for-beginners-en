@@ -12,6 +12,9 @@ This tutorial features
 
 Through this tutorial, let's acquire the ability to use Rake for various development.
 
+The example source codes in this tutorial are located at a GitHub repository [Rake tutorial for beginners en](https://github.com/ToshioCP/Rake-tutorial-for-beginners-en).
+Download it so that you can try the examples without typing.
+
 The paragraph that starts with the symbol \[R\] in the text is "Commentary for advanced Ruby users".
 *Advanced* basically refers to "a level where you can write a class".
 Other users should skip this part.
