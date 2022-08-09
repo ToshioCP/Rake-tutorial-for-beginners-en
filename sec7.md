@@ -142,12 +142,12 @@ $ rake test
 
 #### Conclusion
 
-The last section may be difficult for beginners.
-But first 4 sections are enough to write a Rakefile.
-So, read them first and practice writing your Rakefiles.
-The experience gives you deeper understanding.
-Then, read the rest of the tutorial.
-You would understand them thanks to your practice experience.
+Rake is a powerful development tool, which controls programs and methods.
+Rake has FileTask, which is similar to Make's task.
+But Rake is more powerful than Make.
+Such Rake features has been explained in this tutorial.
+Rake is really flexible so that you can apply it to many projects.
+Now what you do is just apply Rake to your project.
 
 This tutorial itself also uses Rake to generate HTML from markdown.
 See the Rakefile in the [repository](https://github.com/ToshioCP/Rake-tutorial-for-beginners-en).

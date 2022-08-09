@@ -19,6 +19,13 @@ The paragraph that starts with the symbol \[R\] is a bit high level topic for ad
 *Advanced* basically refers to "a level where you can write a class".
 Other users should skip this part.
 
+The last section may be difficult for beginners.
+But first 4 sections are enough to write a Rakefile.
+So, read them first and practice writing your Rakefiles.
+The experience gives you deeper understanding.
+Then, read the rest of the tutorial.
+You would understand them thanks to your practice experience.
+
 #### Installing Rake
 
 Rake is a Ruby application.
