@@ -1,4 +1,4 @@
-### Other features of Rake
+### Other Rake features
 
 Rake features that haven't explained yet will be described here and next section.
 This section includes:
@@ -30,7 +30,7 @@ $ rake hello[James,Kelly]
 
 Be careful that you can't put spaces anywhere from the task name to the right bracket.
 This is because spaces have a special meaning on the command line.
-It is *argument delimiters*.
+It is an *argument delimiter*.
 
 - `rake hello[James,Kelly]` => One argument `hello[James,Kelly]` is passed to the command `rake`.
 Rake analyzes it and recognizes that `hello` is the task name and `James` and `Kelly` are arguments to the task.
@@ -38,7 +38,7 @@ Rake analyzes it and recognizes that `hello` is the task name and `James` and `K
 Rake recognizes that `hello[James,` is a task name because no closing bracket exists.
 But, since Rakefile doesn't have such task, rake issues an error.
 
-If you want to put spaces in the argument, enclose it in double quotes (`"`).
+If you want to put spaces in the argument, enclose it with double quotes (`"`).
 For further information, refer to [Bash reference manual](https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html).
 
 ```
@@ -46,8 +46,8 @@ $ rake "hello[James Robinson, Kelly Baker]"
 ```
 
 Bash recognizes that the characters between two double quotes is one argument.
-And it passes it to Rake as the first argument.
-Then, Rake determines that `hello` is the task.
+And Bash passes it to Rake as the first argument.
+Then, Rake determines that `hello` is a task name.
 And that `James Robinson` and `Kelly Baker` are two arguments for the task.
 
 On the other hand, a task definition in a Rakefile has parameters after the task name, separated by commas.
@@ -104,15 +104,14 @@ Some instance methods of the TaskArguments class are shown below.
 - to_hash => Returns a hash that combines parameters and values.
 Extra arguments are discarded.
 `args.to_hash` returns `{:person1=>"James", :person2=>"Kelly"}`.
-- each => Execute `each` method on hash of `to_hash`.
+- each => Execute `each` method on the hash returned by `to_hash`.
 
 > [R] The parameter name is used as a method name in the example above.
 > But it is not actually defined as a method.
-> Rake uses the `method_missing` method (BasicObject's method) to return the value of the parameter name if the method name is not defined.
-> Therefore, it looks as if the method with the parameter name was executed.
+> Rake uses the `method_missing` method (BasicObject's method) to return the value of the parameter if the method name is not defined.
+> Therefore, it looks as if a parameter name method was executed.
 
-You can also set default values ​​for parameters.
-Use the `with_defaults` method with a hash.
+You can also set parameters default values with the `with_defaults` method.
 
 ```ruby
 task :hello, [:person1, :person2] do |t, args|
@@ -170,9 +169,9 @@ How are you, James?
 How are you, Kelly?
 ```
 
-The example above isn't practical, but I hope it helps you understand the Rakefile arguments.
+The example above isn't practical, but I think it is useful to understand Rakefile arguments.
 
-In addition to arguments, environment variables can also be used to pass values ​​to Rake, but it is the old way.
+In addition to arguments, environment variables can be used to pass values ​​to Rake, but it is the old way.
 Rake didn't support arguments prior to version 0.8.0.
 At that time, using environment variables was an alternative to arguments.
 There is no need to use environment variables as arguments in the later version.
@@ -207,7 +206,7 @@ $
 
 If a task doesn't have description, it won't be displayed.
 Only the tasks with descriptions are displayed.
-Descriptions should only be attached to tasks that users invoke from the command line.
+Descriptions should be attached to tasks that users invoke from the command line.
 For example, the following is the Rakefile in the previous section,
 
 ```ruby
@@ -229,7 +228,7 @@ You can see the task description from the command line.
 
 ```
 # change the current directory to example/example6
-$ rake -T
+$ rake -f Rakefile1 -T
 rake clean # Remove any temporary products
 rake clobber # Remove any generated files
 rake default # creates both HTML and PDF files
@@ -237,13 +236,23 @@ rake html:build # create a HTML file
 rake pdf:build # create a PDF file
 ```
 
-WHen a user see the message above, they can know the task name to give `rake`.
-You could say that the description is a comment for the user.
+When a user see the message above, they can know the task name to give `rake`.
+You could say that the description is a comment for users.
 
 On the other hand, when the developer wants to leave a note about the program, they should use Ruby comments (`# ... ...`).
 
 The `-T` option only prints what fits on one line, while the `-D` option prints the entire description.
-You can add a pattern to limit the tasks to display.
+Users can add a pattern to limit the tasks to display.
+
+```
+$ rake -f Rakefile1 -T '^c'
+rake clean # Remove any temporary products
+rake clobber # Remove any generated files
+```
+
+The pattern is a Ruby RegExp literal without slashes (/), not a Glob pattern.
+Some characters, for example asterisk (\*), are translated by Bash
+So, users should surround the pattern with single quotes (').
 
 The following options are for developers.
 
@@ -272,3 +281,22 @@ In that case
 - Place the libraries in the `rakelib` directory under the top directory (the directory containing the Rakefile)
 
 There is no programmatic master-slave relationship between the Rakefile and the library, but the Rakefile in the top directory is called the "main Rakefile".
+
+A file `goodby.rake` is in the directory `example/example7/rakelib`.
+
+```ruby
+task :goodby, [:person1, :person2] do |t, args|
+  print "Good by, #{args.person1}.\n"
+  print "Good by, #{args.person2}.\n"
+end
+```
+
+This file is a library Rakefile and the task `goodby` can be called from the command line.
+
+```
+# current directory is example/example7
+$ rake -f Rakefile1 goodby[James,Kelly]
+Good by, James.
+Good by, Kelly.
+```
+

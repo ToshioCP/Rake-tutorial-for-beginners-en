@@ -1,44 +1,43 @@
 ### A useful example of Rakefile (2), Namespace
 
-In this section, we will combine Pandoc and Rake to create a PDF file.
+In this section, we will create a PDF file with Pandoc and Rake.
 The namespaces is also explained here.
 
 #### Pandoc, LaTeX and PDF
 
 Pandoc is able to convert Markdown to PDF.
-There can be several intermediate file formats to generate PDF files.
+There are several intermediate file formats to generate PDF files.
 LaTeX, ConTeXt, roff ms, and HTML are such formats.
 
-We will convert Markdown to PDF via LaTeX in the example in this section.
+We'll choose LaTeX as an intermediate file format here.
 
 ```
 Markdown => LaTeX => PDF
 ```
 
 PdfLaTeX, XeLaTeX and LuaLaTeX can be used as a LaTeX engine to convert a tex file to PDF.
-LuaLeTeX will be used in this section..
-
-(Note) Some readers may like engines such as pLaTeX and upLaTeX.
-Pandoc doesn't seem to support them as a PDF creation engine.
-If you want to use those engines, generate a LaTeX document with Pandoc and convert it to PDF with the respective engine.
-Rakefile will be a little more complicated.
+LuaLeTeX will be used here.
 
 #### Preparation
 
-Metadata at the beginning of the Markdown configure some information for Pandoc.
+Pandoc Markdown has its own extensions from the original Markdown.
+One of the extensions is Metadata.
+It's written at the beginning of the Markdown text and configures some information for Pandoc.
 They are written in YAML format.
 For more information about YAML, see [Wikipedia](https://en.wikipedia.org/wiki/YAML) or [YAML official page](https://yaml.org/).
 
 ```
 % Rake tutorial for beginners
-% ToshioCP
-% August 7, 2022
+% Toshio CP
+% August 5, 2022
 
 ---
 document class: article
+geometry: margin=2.4cm
 toc: true
 numbersections: true
 secnumdepth: 2
+---
 ---
 ```
 
@@ -49,8 +48,9 @@ See the Pandoc manual for what items can be set here.
 The items here are as follows.
 
 - Use 'article' as the document class for LaTeX documents
+- Use geometry package and set all the margins to 2.4cm
 - Output table of contents
-- Number sections (no numbering, which is false, is the default value)
+- Number sections (the default is false)
 - Sections are numbered from the largest heading to the second largest.
 The largest heading in the "article" document class is "section" and the second largest is "subsection".
 These correspond to '#' and '##' ATX headings in Markdown.
@@ -58,7 +58,7 @@ These correspond to '#' and '##' ATX headings in Markdown.
 Add the above to the beginning of "sec1.md".
 
 In the previous section, I used "###" to "#####" for headings in the Markdown files, but that doesn't make it a LaTeX section or subsection, so I need to change it from "#" to "###".
-Since it is troublesome to do it manually, I will create a Ruby program and change them.
+Since it is troublesome to do it manually, I've written a Ruby program.
 
 ```ruby
 files = (1..4).map {|n| "sec#{n}.md"}
@@ -71,14 +71,7 @@ files.each do |file|
 end
 ```
 
-Save this file as `ch_head.rb` and run it.
-(Sample files are in `example/example5`)
-
-```
-$ ruby ​​ch_head.rb
-```
-
-The headings have fixed.
+File in `example/example5` has already changed its ATX headings so you don't need to run `ch_head.rb`.
 
 We need to change one more.
 Sec2.md has a long line in a fence code block.
@@ -100,7 +93,7 @@ The long line is devided into three lines like this:
 
 #### Rakefile
 
-You can start with the previous Rakefile and modify it.
+We start with the previous Rakefile and modify it.
 It is easier than writing it from scratch.
 
 ```ruby
@@ -124,9 +117,7 @@ CLOBBER << "LearningRake.pdf"
 
 ```
 
-The Markdown files in `example/example5` have already been modified with metadata and headings.
-
-Run Rake on `example/example5`.
+Change your current directory to `example/example5` and run Rake.
 
 ```
 $ rake
@@ -136,20 +127,13 @@ $
 
 It takes a little longer than before (about 10 seconds).
 
-Please check the created PDF.
-
-It is convenient to create a PDF from Markdown.
-
 HTML is suitable for publishing on the web, and PDF is suitable for viewing at hand.
 In the next subsection, we'll combine these two tasks into a single Rakefile.
 
 #### Namespaces
 
 Now we combine two tasks (HTML and PDF) into one Rakefile.
-I would like to organize the tasks in an easy-to-understand manner.
-In general, complicated programs are hard to maintain.
-It is called software "maintainability" and one of the most important thing in program developing.
-We use namespaces here to make the program clearer.
+Namespaces is used here to make the Rakefile organized.
 
 Namespaces are a common technique when building large programs, and are not limited to Rake.
 Here, we define two namespaces like this:
@@ -160,14 +144,15 @@ Here, we define two namespaces like this:
 A namespace is declared with `namespace` method.
 
 ```
-namespace namespace name do
+namespace namespace_name do
   Task definition
   ・・・・
 end
 ```
 
-In the previous Rakefile, each work was started with the default task, but this time we will set up a "build" task for each.
-Since the "build" task is defined under the namespace, they are:
+In the previous Rakefile, each work was started with the default task.
+In the new Rakefile, we will make a `build` task for each.
+Since the `build` task is defined under the namespace, they are:
 
 - html:build => task to build HTML
 - pdf:build => task to build PDF
@@ -176,19 +161,19 @@ In this way, tasks under a namespace are represented by connecting them with a c
 
 Namespaces only apply to general tasks (not file or directory tasks).
 A file task is a filename, and the filename doesn't change even if it's defined in a namespace.
-Namespaces are also not used when referencing file tasks.
+Namespaces are not used when referencing file tasks, too.
 
 #### Preparation
 
 Some preparations are required to combine two tasks into one Rakefile.
 
-- Keep all metadata (including title, author, date and time) in a separate file.
+- Move all metadata (including title, author, date and time) to other files.
 Prepare “metadata\_html.yml” for HTML and “metadata\_pdf.yml” for PDF.
-- In PDF, it is necessary to change the heading (for example, change "###" to "#"), so save the changed "sec1.md" to "sec\_pdf1.md".
-Do the same for other files.
-This operation is described in the Rakefile.
+- When creating PDF, it is necessary to change the heading (for example, change "###" to "#").
+New intermediate files are needed.
+Name them "sec\_pdf?.md", where `?` is a number from 1 to 7.
 
-First, create metadata.
+The metadata files are as follows.
 
 metadata\_html.yml
 
@@ -211,8 +196,8 @@ numbersections: true
 secnumdepth: 2
 ```
 
-Delete the metadata starting with % that was at the beginning of "sec1.md".
-Please make sure that the heading of "sec1.md" is the ATX heading from "###" to "#####".
+Delete the metadata from `sec1.md`.
+Please make sure that the heading of "sec1.md" is the ATX heading from "###" to "#####" (not from "#" to "###").
 
 #### Rakefile
 
@@ -278,34 +263,32 @@ The points are:
 
 - The definition of `sources` are changed.
 An intermediate file such as "sec_pdf1.md" is created in the `pdf` namespace.
-In the previous Rakefile, the source files are collected with `sources=FileList["sec*.md"]` statement.
-But the statment possibly picks up intermediate files `sec?_pdf.md`.
-So glob pattern is not appropriate in this version.
-So, the each source file is specified in the arguments of `FileList[]` method.
+The glob pattern `FileList["sec*.md"]` possibly picks up such intermediate files.
+Therefore, the each source file is specified in the arguments of `FileList[]` method.
 - A new option `--metadata-file=` is given to Pandoc to import metadata.
-- When creating the PDF, I used an intermediate file such as "sec_pdf1.md" with changed headings.
-Also, changing the heading is defined as a file task action.
-I used the `gsub` method instead of `gsub!` for string substitution.
-Since the return values ​​are different between the both, it is better not to use methods with exclamation.
-(It is prone to include bugs because `gsub!` returns `nil` when the replacement does not occur.)
+- When creating the PDF, intermediate file tasks such as "sec_pdf1.md" are defined.
+The headings in "sec?.md" is changed in the file task action.
+A `gsub` method is used instead of `gsub!` for string substitution.
+Since the return values ​​are different between the both, it is better to use methods without exclamation.
+(Using `gsub!` is prone to include bugs because it returns `nil` when the replacement does not occur.)
 
 Defining tasks with the same name in different namespaces will not cause name conflicts.
 This works well especially for large projects.
 
-Give arguments to `rake` like this:
+Rake behaves as follows when it is given the arguments below.
 
-- `rake` => Both HTML and PDF are created
-- `rake html:build` => Only HTML is created
-- `rake pdf:build` => Only PDF is created
-- `rake clean` => Delete intermediate files
-- `rake clobber` => Delete all generated files
+- `rake` => Creates both HTML and PDF
+- `rake html:build` => Creates only HTML
+- `rake pdf:build` => Creates only PDF
+- `rake clean` => Deletes intermediate files
+- `rake clobber` => Deletes all generated files
 
 #### The advantage of namespaces
 
-Namespaces are useful for organizing the contents of large Rakefiles.
-And a large Rakefile can often be split into two or more files.
-Usually, they include one main Rakefile and other libraries.
-Namespaces are especially useful in libraries to prevent task names from clashes with the other files.
+Namespaces are useful for a large Rakefiles and libraries.
+When Rakefile becomes very big, it is often split into two or more files.
+Usually, they are one main Rakefile and libraries.
+If you put a namespace to your library, you don't need to worry about any clashes with the other files.
 
 On the other hand, a small Rakefile can be fine without namespaces.
 

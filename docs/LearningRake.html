@@ -92,7 +92,7 @@
 <li><a href="#filelist-pathmap-and-directory-task">FileList, Pathmap and Directory Task</a></li>
 <li><a href="#a-useful-example-of-rakefile-1-clean-and-clobber">A useful example of Rakefile (1), Clean and Clobber</a></li>
 <li><a href="#a-useful-example-of-rakefile-2-namespace">A useful example of Rakefile (2), Namespace</a></li>
-<li><a href="#other-features-of-rake">Other features of Rake</a></li>
+<li><a href="#other-rake-features">Other Rake features</a></li>
 <li><a href="#multitask-method-and-testtask-class">Multitask method and TestTask class</a></li>
 </ul>
 </nav>
@@ -944,34 +944,36 @@ $</code></pre>
 <p>The following instruction removes all the generated files.</p>
 <pre><code>$ rake -f Rakefile2 clobber</code></pre>
 <h3 id="a-useful-example-of-rakefile-2-namespace">A useful example of Rakefile (2), Namespace</h3>
-<p>In this section, we will combine Pandoc and Rake to create a PDF file. The namespaces is also explained here.</p>
+<p>In this section, we will create a PDF file with Pandoc and Rake. The namespaces is also explained here.</p>
 <h4 id="pandoc-latex-and-pdf">Pandoc, LaTeX and PDF</h4>
-<p>Pandoc is able to convert Markdown to PDF. There can be several intermediate file formats to generate PDF files. LaTeX, ConTeXt, roff ms, and HTML are such formats.</p>
-<p>We will convert Markdown to PDF via LaTeX in the example in this section.</p>
+<p>Pandoc is able to convert Markdown to PDF. There are several intermediate file formats to generate PDF files. LaTeX, ConTeXt, roff ms, and HTML are such formats.</p>
+<p>We’ll choose LaTeX as an intermediate file format here.</p>
 <pre><code>Markdown =&gt; LaTeX =&gt; PDF</code></pre>
-<p>PdfLaTeX, XeLaTeX and LuaLaTeX can be used as a LaTeX engine to convert a tex file to PDF. LuaLeTeX will be used in this section..</p>
-<p>(Note) Some readers may like engines such as pLaTeX and upLaTeX. Pandoc doesn’t seem to support them as a PDF creation engine. If you want to use those engines, generate a LaTeX document with Pandoc and convert it to PDF with the respective engine. Rakefile will be a little more complicated.</p>
+<p>PdfLaTeX, XeLaTeX and LuaLaTeX can be used as a LaTeX engine to convert a tex file to PDF. LuaLeTeX will be used here.</p>
 <h4 id="preparation">Preparation</h4>
-<p>Metadata at the beginning of the Markdown configure some information for Pandoc. They are written in YAML format. For more information about YAML, see <a href="https://en.wikipedia.org/wiki/YAML">Wikipedia</a> or <a href="https://yaml.org/">YAML official page</a>.</p>
+<p>Pandoc Markdown has its own extensions from the original Markdown. One of the extensions is Metadata. It’s written at the beginning of the Markdown text and configures some information for Pandoc. They are written in YAML format. For more information about YAML, see <a href="https://en.wikipedia.org/wiki/YAML">Wikipedia</a> or <a href="https://yaml.org/">YAML official page</a>.</p>
 <pre><code>% Rake tutorial for beginners
-% ToshioCP
-% August 7, 2022
+% Toshio CP
+% August 5, 2022
 
 ---
 document class: article
+geometry: margin=2.4cm
 toc: true
 numbersections: true
 secnumdepth: 2
+---
 ---</code></pre>
 <p>Metadata starting with % is the same as the one in the previous section. They represents the title, author, and date of creation, respectively. The part surrounded by <code>---</code> lines is YAML metadata. See the Pandoc manual for what items can be set here. The items here are as follows.</p>
 <ul>
 <li>Use ‘article’ as the document class for LaTeX documents</li>
+<li>Use geometry package and set all the margins to 2.4cm</li>
 <li>Output table of contents</li>
-<li>Number sections (no numbering, which is false, is the default value)</li>
+<li>Number sections (the default is false)</li>
 <li>Sections are numbered from the largest heading to the second largest. The largest heading in the “article” document class is “section” and the second largest is “subsection”. These correspond to ‘#’ and ‘##’ ATX headings in Markdown.</li>
 </ul>
 <p>Add the above to the beginning of “sec1.md”.</p>
-<p>In the previous section, I used “###” to “#####” for headings in the Markdown files, but that doesn’t make it a LaTeX section or subsection, so I need to change it from “#” to “###”. Since it is troublesome to do it manually, I will create a Ruby program and change them.</p>
+<p>In the previous section, I used “###” to “#####” for headings in the Markdown files, but that doesn’t make it a LaTeX section or subsection, so I need to change it from “#” to “###”. Since it is troublesome to do it manually, I’ve written a Ruby program.</p>
 <div class="sourceCode" id="cb76"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true"></a>files = (<span class="dv">1</span>..<span class="dv">4</span>).map {|n| <span class="st">&quot;sec</span><span class="ot">#{</span>n<span class="ot">}</span><span class="st">.md&quot;</span>}</span>
 <span id="cb76-2"><a href="#cb76-2" aria-hidden="true"></a>files.each <span class="kw">do</span> |file|</span>
 <span id="cb76-3"><a href="#cb76-3" aria-hidden="true"></a>  s = <span class="dt">File</span>.read(file)</span>
@@ -980,9 +982,7 @@ secnumdepth: 2
 <span id="cb76-6"><a href="#cb76-6" aria-hidden="true"></a>  s.gsub!(<span class="ot">/^#####/</span>,<span class="st">&quot;###&quot;</span>)</span>
 <span id="cb76-7"><a href="#cb76-7" aria-hidden="true"></a>  <span class="dt">File</span>.write(file,s)</span>
 <span id="cb76-8"><a href="#cb76-8" aria-hidden="true"></a><span class="kw">end</span></span></code></pre></div>
-<p>Save this file as <code>ch_head.rb</code> and run it. (Sample files are in <code>example/example5</code>)</p>
-<pre><code>$ ruby ​​ch_head.rb</code></pre>
-<p>The headings have fixed.</p>
+<p>File in <code>example/example5</code> has already changed its ATX headings so you don’t need to run <code>ch_head.rb</code>.</p>
 <p>We need to change one more. Sec2.md has a long line in a fence code block. It will overflow in the PDF.</p>
 <pre><code>&gt; $ rake
 &gt; rake aborted!
@@ -996,145 +996,142 @@ The long line is devided into three lines like this:
 &gt; ~a.txt =&gt; ~a.txt =&gt; ~a.txt =&gt; ~a.txt =&gt; ~a .txt =&gt; ~a.txt =&gt; ~a.txt =&gt; ~a.txt =&gt;
 &gt; ~a.txt =&gt; ~a.txt =&gt; ~a.txt =&gt; ~a.txt =&gt; ~a.txt =&gt; ~a.txt =&gt; ~a.txt]</code></pre>
 <h4 id="rakefile-1">Rakefile</h4>
-<p>You can start with the previous Rakefile and modify it. It is easier than writing it from scratch.</p>
-<div class="sourceCode" id="cb79"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true"></a>require <span class="st">&#39;rake/clean&#39;</span></span>
-<span id="cb79-2"><a href="#cb79-2" aria-hidden="true"></a></span>
-<span id="cb79-3"><a href="#cb79-3" aria-hidden="true"></a>sources = <span class="dt">FileList</span>[<span class="st">&quot;sec*.md&quot;</span>]</span>
-<span id="cb79-4"><a href="#cb79-4" aria-hidden="true"></a></span>
-<span id="cb79-5"><a href="#cb79-5" aria-hidden="true"></a>task <span class="st">default: </span><span class="ot">%w[</span><span class="st">LearningRake.pdf</span><span class="ot">]</span></span>
-<span id="cb79-6"><a href="#cb79-6" aria-hidden="true"></a></span>
-<span id="cb79-7"><a href="#cb79-7" aria-hidden="true"></a>file <span class="st">&quot;LearningRake.pdf&quot;</span> =&gt; <span class="st">&quot;LearningRake.md&quot;</span> <span class="kw">do</span> |t|</span>
-<span id="cb79-8"><a href="#cb79-8" aria-hidden="true"></a>  sh <span class="st">&quot;pandoc -s --pdf-engine lualatex -o </span><span class="ot">#{</span>t.name<span class="ot">}</span><span class="st"> </span><span class="ot">#{</span>t.source<span class="ot">}</span><span class="st">&quot;</span></span>
-<span id="cb79-9"><a href="#cb79-9" aria-hidden="true"></a><span class="kw">end</span></span>
-<span id="cb79-10"><a href="#cb79-10" aria-hidden="true"></a><span class="dt">CLEAN</span> &lt;&lt; <span class="st">&quot;LearningRake.md&quot;</span></span>
-<span id="cb79-11"><a href="#cb79-11" aria-hidden="true"></a></span>
-<span id="cb79-12"><a href="#cb79-12" aria-hidden="true"></a>file <span class="st">&quot;LearningRake.md&quot;</span> =&gt; sources <span class="kw">do</span> |t|</span>
-<span id="cb79-13"><a href="#cb79-13" aria-hidden="true"></a>  learning_rake = t.sources.inject(<span class="st">&quot;&quot;</span>) {|s1, s2| s1 &lt;&lt; <span class="dt">File</span>.read(s2) + <span class="st">&quot;\n\n&quot;</span>}</span>
-<span id="cb79-14"><a href="#cb79-14" aria-hidden="true"></a>  <span class="dt">File</span>.write(<span class="st">&quot;LearningRake.md&quot;</span>, learning_rake)</span>
-<span id="cb79-15"><a href="#cb79-15" aria-hidden="true"></a><span class="kw">end</span></span>
-<span id="cb79-16"><a href="#cb79-16" aria-hidden="true"></a></span>
-<span id="cb79-17"><a href="#cb79-17" aria-hidden="true"></a><span class="dt">CLOBBER</span> &lt;&lt; <span class="st">&quot;LearningRake.pdf&quot;</span></span></code></pre></div>
-<p>The Markdown files in <code>example/example5</code> have already been modified with metadata and headings.</p>
-<p>Run Rake on <code>example/example5</code>.</p>
+<p>We start with the previous Rakefile and modify it. It is easier than writing it from scratch.</p>
+<div class="sourceCode" id="cb78"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true"></a>require <span class="st">&#39;rake/clean&#39;</span></span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true"></a></span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true"></a>sources = <span class="dt">FileList</span>[<span class="st">&quot;sec*.md&quot;</span>]</span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true"></a></span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true"></a>task <span class="st">default: </span><span class="ot">%w[</span><span class="st">LearningRake.pdf</span><span class="ot">]</span></span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true"></a></span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true"></a>file <span class="st">&quot;LearningRake.pdf&quot;</span> =&gt; <span class="st">&quot;LearningRake.md&quot;</span> <span class="kw">do</span> |t|</span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true"></a>  sh <span class="st">&quot;pandoc -s --pdf-engine lualatex -o </span><span class="ot">#{</span>t.name<span class="ot">}</span><span class="st"> </span><span class="ot">#{</span>t.source<span class="ot">}</span><span class="st">&quot;</span></span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true"></a><span class="kw">end</span></span>
+<span id="cb78-10"><a href="#cb78-10" aria-hidden="true"></a><span class="dt">CLEAN</span> &lt;&lt; <span class="st">&quot;LearningRake.md&quot;</span></span>
+<span id="cb78-11"><a href="#cb78-11" aria-hidden="true"></a></span>
+<span id="cb78-12"><a href="#cb78-12" aria-hidden="true"></a>file <span class="st">&quot;LearningRake.md&quot;</span> =&gt; sources <span class="kw">do</span> |t|</span>
+<span id="cb78-13"><a href="#cb78-13" aria-hidden="true"></a>  learning_rake = t.sources.inject(<span class="st">&quot;&quot;</span>) {|s1, s2| s1 &lt;&lt; <span class="dt">File</span>.read(s2) + <span class="st">&quot;\n\n&quot;</span>}</span>
+<span id="cb78-14"><a href="#cb78-14" aria-hidden="true"></a>  <span class="dt">File</span>.write(<span class="st">&quot;LearningRake.md&quot;</span>, learning_rake)</span>
+<span id="cb78-15"><a href="#cb78-15" aria-hidden="true"></a><span class="kw">end</span></span>
+<span id="cb78-16"><a href="#cb78-16" aria-hidden="true"></a></span>
+<span id="cb78-17"><a href="#cb78-17" aria-hidden="true"></a><span class="dt">CLOBBER</span> &lt;&lt; <span class="st">&quot;LearningRake.pdf&quot;</span></span></code></pre></div>
+<p>Change your current directory to <code>example/example5</code> and run Rake.</p>
 <pre><code>$ rake
 pandoc -s --pdf-engine lualatex -o Beginning Rake.pdf Beginning Rake.md
 $</code></pre>
 <p>It takes a little longer than before (about 10 seconds).</p>
-<p>Please check the created PDF.</p>
-<p>It is convenient to create a PDF from Markdown.</p>
 <p>HTML is suitable for publishing on the web, and PDF is suitable for viewing at hand. In the next subsection, we’ll combine these two tasks into a single Rakefile.</p>
 <h4 id="namespaces">Namespaces</h4>
-<p>Now we combine two tasks (HTML and PDF) into one Rakefile. I would like to organize the tasks in an easy-to-understand manner. In general, complicated programs are hard to maintain. It is called software “maintainability” and one of the most important thing in program developing. We use namespaces here to make the program clearer.</p>
+<p>Now we combine two tasks (HTML and PDF) into one Rakefile. Namespaces is used here to make the Rakefile organized.</p>
 <p>Namespaces are a common technique when building large programs, and are not limited to Rake. Here, we define two namespaces like this:</p>
 <ul>
 <li>Put the tasks for HTML in the namespace “html”</li>
 <li>Put the tasks for PDF in the namespace “pdf”</li>
 </ul>
 <p>A namespace is declared with <code>namespace</code> method.</p>
-<pre><code>namespace namespace name do
+<pre><code>namespace namespace_name do
   Task definition
   ・・・・
 end</code></pre>
-<p>In the previous Rakefile, each work was started with the default task, but this time we will set up a “build” task for each. Since the “build” task is defined under the namespace, they are:</p>
+<p>In the previous Rakefile, each work was started with the default task. In the new Rakefile, we will make a <code>build</code> task for each. Since the <code>build</code> task is defined under the namespace, they are:</p>
 <ul>
 <li>html:build =&gt; task to build HTML</li>
 <li>pdf:build =&gt; task to build PDF</li>
 </ul>
 <p>In this way, tasks under a namespace are represented by connecting them with a colon, such as “namespace_name: task_name”.</p>
-<p>Namespaces only apply to general tasks (not file or directory tasks). A file task is a filename, and the filename doesn’t change even if it’s defined in a namespace. Namespaces are also not used when referencing file tasks.</p>
+<p>Namespaces only apply to general tasks (not file or directory tasks). A file task is a filename, and the filename doesn’t change even if it’s defined in a namespace. Namespaces are not used when referencing file tasks, too.</p>
 <h4 id="preparation-1">Preparation</h4>
 <p>Some preparations are required to combine two tasks into one Rakefile.</p>
 <ul>
-<li>Keep all metadata (including title, author, date and time) in a separate file. Prepare “metadata_html.yml” for HTML and “metadata_pdf.yml” for PDF.</li>
-<li>In PDF, it is necessary to change the heading (for example, change “###” to “#”), so save the changed “sec1.md” to “sec_pdf1.md”. Do the same for other files. This operation is described in the Rakefile.</li>
+<li>Move all metadata (including title, author, date and time) to other files. Prepare “metadata_html.yml” for HTML and “metadata_pdf.yml” for PDF.</li>
+<li>When creating PDF, it is necessary to change the heading (for example, change “###” to “#”). New intermediate files are needed. Name them “sec_pdf?.md”, where <code>?</code> is a number from 1 to 7.</li>
 </ul>
-<p>First, create metadata.</p>
+<p>The metadata files are as follows.</p>
 <p>metadata_html.yml</p>
+<div class="sourceCode" id="cb81"><pre class="sourceCode yml"><code class="sourceCode yaml"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> Rake tutorial for beginners</span></span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true"></a><span class="fu">author</span><span class="kw">:</span><span class="at"> ToshioCP</span></span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true"></a><span class="fu">date</span><span class="kw">:</span><span class="at"> August 7, 2022</span></span></code></pre></div>
+<p>metadata_pdf.yml</p>
 <div class="sourceCode" id="cb82"><pre class="sourceCode yml"><code class="sourceCode yaml"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> Rake tutorial for beginners</span></span>
 <span id="cb82-2"><a href="#cb82-2" aria-hidden="true"></a><span class="fu">author</span><span class="kw">:</span><span class="at"> ToshioCP</span></span>
-<span id="cb82-3"><a href="#cb82-3" aria-hidden="true"></a><span class="fu">date</span><span class="kw">:</span><span class="at"> August 7, 2022</span></span></code></pre></div>
-<p>metadata_pdf.yml</p>
-<div class="sourceCode" id="cb83"><pre class="sourceCode yml"><code class="sourceCode yaml"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> Rake tutorial for beginners</span></span>
-<span id="cb83-2"><a href="#cb83-2" aria-hidden="true"></a><span class="fu">author</span><span class="kw">:</span><span class="at"> ToshioCP</span></span>
-<span id="cb83-3"><a href="#cb83-3" aria-hidden="true"></a><span class="fu">date</span><span class="kw">:</span><span class="at"> August 7, 2022</span></span>
-<span id="cb83-4"><a href="#cb83-4" aria-hidden="true"></a><span class="fu">documentclass</span><span class="kw">:</span><span class="at"> article</span></span>
-<span id="cb83-5"><a href="#cb83-5" aria-hidden="true"></a><span class="fu">geometry</span><span class="kw">:</span><span class="at"> margin=2.4cm</span></span>
-<span id="cb83-6"><a href="#cb83-6" aria-hidden="true"></a><span class="fu">toc</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb83-7"><a href="#cb83-7" aria-hidden="true"></a><span class="fu">numbersections</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb83-8"><a href="#cb83-8" aria-hidden="true"></a><span class="fu">secnumdepth</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span></code></pre></div>
-<p>Delete the metadata starting with % that was at the beginning of “sec1.md”. Please make sure that the heading of “sec1.md” is the ATX heading from “###” to “#####”.</p>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true"></a><span class="fu">date</span><span class="kw">:</span><span class="at"> August 7, 2022</span></span>
+<span id="cb82-4"><a href="#cb82-4" aria-hidden="true"></a><span class="fu">documentclass</span><span class="kw">:</span><span class="at"> article</span></span>
+<span id="cb82-5"><a href="#cb82-5" aria-hidden="true"></a><span class="fu">geometry</span><span class="kw">:</span><span class="at"> margin=2.4cm</span></span>
+<span id="cb82-6"><a href="#cb82-6" aria-hidden="true"></a><span class="fu">toc</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb82-7"><a href="#cb82-7" aria-hidden="true"></a><span class="fu">numbersections</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb82-8"><a href="#cb82-8" aria-hidden="true"></a><span class="fu">secnumdepth</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span></code></pre></div>
+<p>Delete the metadata from <code>sec1.md</code>. Please make sure that the heading of “sec1.md” is the ATX heading from “###” to “#####” (not from “#” to “###”).</p>
 <h4 id="rakefile-2">Rakefile</h4>
 <p>The new Rakefile for HTML and PDF is as follows.</p>
-<div class="sourceCode" id="cb84"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true"></a>require <span class="st">&#39;rake/clean&#39;</span></span>
-<span id="cb84-2"><a href="#cb84-2" aria-hidden="true"></a></span>
-<span id="cb84-3"><a href="#cb84-3" aria-hidden="true"></a>sources = <span class="dt">FileList</span>[<span class="st">&quot;sec1.md&quot;</span>, <span class="st">&quot;sec2.md&quot;</span>, <span class="st">&quot;sec3.md&quot;</span>, <span class="st">&quot;sec4.md&quot;</span>]</span>
-<span id="cb84-4"><a href="#cb84-4" aria-hidden="true"></a>sources_pdf = sources.pathmap(<span class="st">&quot;%{sec,sec_pdf}p&quot;</span>)</span>
-<span id="cb84-5"><a href="#cb84-5" aria-hidden="true"></a></span>
-<span id="cb84-6"><a href="#cb84-6" aria-hidden="true"></a>task <span class="st">default: </span><span class="ot">%w[</span><span class="st">html:build pdf:build</span><span class="ot">]</span></span>
-<span id="cb84-7"><a href="#cb84-7" aria-hidden="true"></a></span>
-<span id="cb84-8"><a href="#cb84-8" aria-hidden="true"></a>namespace <span class="st">&quot;html&quot;</span> <span class="kw">do</span></span>
-<span id="cb84-9"><a href="#cb84-9" aria-hidden="true"></a>  task <span class="st">build: </span><span class="ot">%w[</span><span class="st">docs/LearningRake.html docs/style.css</span><span class="ot">]</span></span>
-<span id="cb84-10"><a href="#cb84-10" aria-hidden="true"></a>  </span>
-<span id="cb84-11"><a href="#cb84-11" aria-hidden="true"></a>  file <span class="st">&quot;docs/LearningRake.html&quot;</span> =&gt;<span class="ot"> %w[</span><span class="st">LearningRakee.md docs</span><span class="ot">]</span> <span class="kw">do</span> |t|</span>
-<span id="cb84-12"><a href="#cb84-12" aria-hidden="true"></a>    sh <span class="st">&quot;pandoc -s --toc --metadata-file=metadata_html.yml -c style.css -o </span><span class="ot">#{</span>t.name<span class="ot">}</span><span class="st"> </span><span class="ot">#{</span>t.source<span class="ot">}</span><span class="st">&quot;</span></span>
-<span id="cb84-13"><a href="#cb84-13" aria-hidden="true"></a>  <span class="kw">end</span></span>
-<span id="cb84-14"><a href="#cb84-14" aria-hidden="true"></a>  <span class="dt">CLEAN</span> &lt;&lt; <span class="st">&quot;LearningRake.md&quot;</span></span>
-<span id="cb84-15"><a href="#cb84-15" aria-hidden="true"></a>  </span>
-<span id="cb84-16"><a href="#cb84-16" aria-hidden="true"></a>  file <span class="st">&quot;LearningRake.md&quot;</span> =&gt; sources <span class="kw">do</span> |t|</span>
-<span id="cb84-17"><a href="#cb84-17" aria-hidden="true"></a>    learning_rake = t.sources.inject(<span class="st">&quot;&quot;</span>) {|s1, s2| s1 &lt;&lt; <span class="dt">File</span>.read(s2) + <span class="st">&quot;\n\n&quot;</span>}</span>
-<span id="cb84-18"><a href="#cb84-18" aria-hidden="true"></a>    <span class="dt">File</span>.write(<span class="st">&quot;LearningRake.md&quot;</span>, learning_rake)</span>
-<span id="cb84-19"><a href="#cb84-19" aria-hidden="true"></a>  <span class="kw">end</span></span>
-<span id="cb84-20"><a href="#cb84-20" aria-hidden="true"></a></span>
-<span id="cb84-21"><a href="#cb84-21" aria-hidden="true"></a>  file <span class="st">&quot;docs/style.css&quot;</span> =&gt;<span class="ot"> %w[</span><span class="st">style.css docs</span><span class="ot">]</span> <span class="kw">do</span> |t|</span>
-<span id="cb84-22"><a href="#cb84-22" aria-hidden="true"></a>    cp t.source, t.name</span>
-<span id="cb84-23"><a href="#cb84-23" aria-hidden="true"></a>  <span class="kw">end</span></span>
-<span id="cb84-24"><a href="#cb84-24" aria-hidden="true"></a></span>
-<span id="cb84-25"><a href="#cb84-25" aria-hidden="true"></a>  directory <span class="st">&quot;docs&quot;</span></span>
-<span id="cb84-26"><a href="#cb84-26" aria-hidden="true"></a>  <span class="dt">CLOBBER</span> &lt;&lt; <span class="st">&quot;docs&quot;</span></span>
-<span id="cb84-27"><a href="#cb84-27" aria-hidden="true"></a><span class="kw">end</span></span>
-<span id="cb84-28"><a href="#cb84-28" aria-hidden="true"></a></span>
-<span id="cb84-29"><a href="#cb84-29" aria-hidden="true"></a>namespace <span class="st">&quot;pdf&quot;</span> <span class="kw">do</span></span>
-<span id="cb84-30"><a href="#cb84-30" aria-hidden="true"></a>  task <span class="st">build: </span><span class="ot">%w[</span><span class="st">LearningRake.pdf</span><span class="ot">]</span></span>
-<span id="cb84-31"><a href="#cb84-31" aria-hidden="true"></a></span>
-<span id="cb84-32"><a href="#cb84-32" aria-hidden="true"></a>  file <span class="st">&quot;LearningRake.pdf&quot;</span> =&gt; <span class="st">&quot;LearningRake_pdf.md&quot;</span> <span class="kw">do</span> |t|</span>
-<span id="cb84-33"><a href="#cb84-33" aria-hidden="true"></a>    sh <span class="st">&quot;pandoc -s --pdf-engine lualatex --metadata-file=metadata_pdf.yml -o </span><span class="ot">#{</span>t.name<span class="ot">}</span><span class="st"> </span><span class="ot">#{</span>t.source<span class="ot">}</span><span class="st">&quot;</span></span>
-<span id="cb84-34"><a href="#cb84-34" aria-hidden="true"></a>  <span class="kw">end</span></span>
-<span id="cb84-35"><a href="#cb84-35" aria-hidden="true"></a>  <span class="dt">CLEAN</span> &lt;&lt; <span class="st">&quot;LearningRake_pdf.md&quot;</span></span>
-<span id="cb84-36"><a href="#cb84-36" aria-hidden="true"></a>  </span>
-<span id="cb84-37"><a href="#cb84-37" aria-hidden="true"></a>  file <span class="st">&quot;LearningRake_pdf.md&quot;</span> =&gt; sources_pdf <span class="kw">do</span> |t|</span>
-<span id="cb84-38"><a href="#cb84-38" aria-hidden="true"></a>    learning_rake = t.sources.inject(<span class="st">&quot;&quot;</span>) {|s1, s2| s1 &lt;&lt; <span class="dt">File</span>.read(s2) + <span class="st">&quot;\n\n&quot;</span>}</span>
-<span id="cb84-39"><a href="#cb84-39" aria-hidden="true"></a>    <span class="dt">File</span>.write(<span class="st">&quot;LearningRake_pdf.md&quot;</span>, learning_rake)</span>
-<span id="cb84-40"><a href="#cb84-40" aria-hidden="true"></a>  <span class="kw">end</span></span>
-<span id="cb84-41"><a href="#cb84-41" aria-hidden="true"></a>  <span class="dt">CLEAN</span>.include sources_pdf</span>
-<span id="cb84-42"><a href="#cb84-42" aria-hidden="true"></a></span>
-<span id="cb84-43"><a href="#cb84-43" aria-hidden="true"></a>  sources_pdf.each <span class="kw">do</span> |dst|</span>
-<span id="cb84-44"><a href="#cb84-44" aria-hidden="true"></a>    src = dst.sub(<span class="ot">/_pdf/</span>,<span class="st">&quot;&quot;</span>)</span>
-<span id="cb84-45"><a href="#cb84-45" aria-hidden="true"></a>    file dst =&gt; src <span class="kw">do</span></span>
-<span id="cb84-46"><a href="#cb84-46" aria-hidden="true"></a>      s = <span class="dt">File</span>.read(src)</span>
-<span id="cb84-47"><a href="#cb84-47" aria-hidden="true"></a>      s = s.gsub(<span class="ot">/^###/</span>,<span class="st">&quot;#&quot;</span>).gsub(<span class="ot">/^####/</span>,<span class="st">&quot;##&quot;</span>).gsub(<span class="ot">/^#####/</span>,<span class="st">&quot;###&quot;</span>)</span>
-<span id="cb84-48"><a href="#cb84-48" aria-hidden="true"></a>      <span class="dt">File</span>.write(dst, s)</span>
-<span id="cb84-49"><a href="#cb84-49" aria-hidden="true"></a>    <span class="kw">end</span></span>
-<span id="cb84-50"><a href="#cb84-50" aria-hidden="true"></a>  <span class="kw">end</span></span>
-<span id="cb84-51"><a href="#cb84-51" aria-hidden="true"></a></span>
-<span id="cb84-52"><a href="#cb84-52" aria-hidden="true"></a>  <span class="dt">CLOBBER</span> &lt;&lt; <span class="st">&quot;LearningRake.pdf&quot;</span></span>
-<span id="cb84-53"><a href="#cb84-53" aria-hidden="true"></a><span class="kw">end</span></span></code></pre></div>
+<div class="sourceCode" id="cb83"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true"></a>require <span class="st">&#39;rake/clean&#39;</span></span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true"></a></span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true"></a>sources = <span class="dt">FileList</span>[<span class="st">&quot;sec1.md&quot;</span>, <span class="st">&quot;sec2.md&quot;</span>, <span class="st">&quot;sec3.md&quot;</span>, <span class="st">&quot;sec4.md&quot;</span>]</span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true"></a>sources_pdf = sources.pathmap(<span class="st">&quot;%{sec,sec_pdf}p&quot;</span>)</span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true"></a></span>
+<span id="cb83-6"><a href="#cb83-6" aria-hidden="true"></a>task <span class="st">default: </span><span class="ot">%w[</span><span class="st">html:build pdf:build</span><span class="ot">]</span></span>
+<span id="cb83-7"><a href="#cb83-7" aria-hidden="true"></a></span>
+<span id="cb83-8"><a href="#cb83-8" aria-hidden="true"></a>namespace <span class="st">&quot;html&quot;</span> <span class="kw">do</span></span>
+<span id="cb83-9"><a href="#cb83-9" aria-hidden="true"></a>  task <span class="st">build: </span><span class="ot">%w[</span><span class="st">docs/LearningRake.html docs/style.css</span><span class="ot">]</span></span>
+<span id="cb83-10"><a href="#cb83-10" aria-hidden="true"></a>  </span>
+<span id="cb83-11"><a href="#cb83-11" aria-hidden="true"></a>  file <span class="st">&quot;docs/LearningRake.html&quot;</span> =&gt;<span class="ot"> %w[</span><span class="st">LearningRakee.md docs</span><span class="ot">]</span> <span class="kw">do</span> |t|</span>
+<span id="cb83-12"><a href="#cb83-12" aria-hidden="true"></a>    sh <span class="st">&quot;pandoc -s --toc --metadata-file=metadata_html.yml -c style.css -o </span><span class="ot">#{</span>t.name<span class="ot">}</span><span class="st"> </span><span class="ot">#{</span>t.source<span class="ot">}</span><span class="st">&quot;</span></span>
+<span id="cb83-13"><a href="#cb83-13" aria-hidden="true"></a>  <span class="kw">end</span></span>
+<span id="cb83-14"><a href="#cb83-14" aria-hidden="true"></a>  <span class="dt">CLEAN</span> &lt;&lt; <span class="st">&quot;LearningRake.md&quot;</span></span>
+<span id="cb83-15"><a href="#cb83-15" aria-hidden="true"></a>  </span>
+<span id="cb83-16"><a href="#cb83-16" aria-hidden="true"></a>  file <span class="st">&quot;LearningRake.md&quot;</span> =&gt; sources <span class="kw">do</span> |t|</span>
+<span id="cb83-17"><a href="#cb83-17" aria-hidden="true"></a>    learning_rake = t.sources.inject(<span class="st">&quot;&quot;</span>) {|s1, s2| s1 &lt;&lt; <span class="dt">File</span>.read(s2) + <span class="st">&quot;\n\n&quot;</span>}</span>
+<span id="cb83-18"><a href="#cb83-18" aria-hidden="true"></a>    <span class="dt">File</span>.write(<span class="st">&quot;LearningRake.md&quot;</span>, learning_rake)</span>
+<span id="cb83-19"><a href="#cb83-19" aria-hidden="true"></a>  <span class="kw">end</span></span>
+<span id="cb83-20"><a href="#cb83-20" aria-hidden="true"></a></span>
+<span id="cb83-21"><a href="#cb83-21" aria-hidden="true"></a>  file <span class="st">&quot;docs/style.css&quot;</span> =&gt;<span class="ot"> %w[</span><span class="st">style.css docs</span><span class="ot">]</span> <span class="kw">do</span> |t|</span>
+<span id="cb83-22"><a href="#cb83-22" aria-hidden="true"></a>    cp t.source, t.name</span>
+<span id="cb83-23"><a href="#cb83-23" aria-hidden="true"></a>  <span class="kw">end</span></span>
+<span id="cb83-24"><a href="#cb83-24" aria-hidden="true"></a></span>
+<span id="cb83-25"><a href="#cb83-25" aria-hidden="true"></a>  directory <span class="st">&quot;docs&quot;</span></span>
+<span id="cb83-26"><a href="#cb83-26" aria-hidden="true"></a>  <span class="dt">CLOBBER</span> &lt;&lt; <span class="st">&quot;docs&quot;</span></span>
+<span id="cb83-27"><a href="#cb83-27" aria-hidden="true"></a><span class="kw">end</span></span>
+<span id="cb83-28"><a href="#cb83-28" aria-hidden="true"></a></span>
+<span id="cb83-29"><a href="#cb83-29" aria-hidden="true"></a>namespace <span class="st">&quot;pdf&quot;</span> <span class="kw">do</span></span>
+<span id="cb83-30"><a href="#cb83-30" aria-hidden="true"></a>  task <span class="st">build: </span><span class="ot">%w[</span><span class="st">LearningRake.pdf</span><span class="ot">]</span></span>
+<span id="cb83-31"><a href="#cb83-31" aria-hidden="true"></a></span>
+<span id="cb83-32"><a href="#cb83-32" aria-hidden="true"></a>  file <span class="st">&quot;LearningRake.pdf&quot;</span> =&gt; <span class="st">&quot;LearningRake_pdf.md&quot;</span> <span class="kw">do</span> |t|</span>
+<span id="cb83-33"><a href="#cb83-33" aria-hidden="true"></a>    sh <span class="st">&quot;pandoc -s --pdf-engine lualatex --metadata-file=metadata_pdf.yml -o </span><span class="ot">#{</span>t.name<span class="ot">}</span><span class="st"> </span><span class="ot">#{</span>t.source<span class="ot">}</span><span class="st">&quot;</span></span>
+<span id="cb83-34"><a href="#cb83-34" aria-hidden="true"></a>  <span class="kw">end</span></span>
+<span id="cb83-35"><a href="#cb83-35" aria-hidden="true"></a>  <span class="dt">CLEAN</span> &lt;&lt; <span class="st">&quot;LearningRake_pdf.md&quot;</span></span>
+<span id="cb83-36"><a href="#cb83-36" aria-hidden="true"></a>  </span>
+<span id="cb83-37"><a href="#cb83-37" aria-hidden="true"></a>  file <span class="st">&quot;LearningRake_pdf.md&quot;</span> =&gt; sources_pdf <span class="kw">do</span> |t|</span>
+<span id="cb83-38"><a href="#cb83-38" aria-hidden="true"></a>    learning_rake = t.sources.inject(<span class="st">&quot;&quot;</span>) {|s1, s2| s1 &lt;&lt; <span class="dt">File</span>.read(s2) + <span class="st">&quot;\n\n&quot;</span>}</span>
+<span id="cb83-39"><a href="#cb83-39" aria-hidden="true"></a>    <span class="dt">File</span>.write(<span class="st">&quot;LearningRake_pdf.md&quot;</span>, learning_rake)</span>
+<span id="cb83-40"><a href="#cb83-40" aria-hidden="true"></a>  <span class="kw">end</span></span>
+<span id="cb83-41"><a href="#cb83-41" aria-hidden="true"></a>  <span class="dt">CLEAN</span>.include sources_pdf</span>
+<span id="cb83-42"><a href="#cb83-42" aria-hidden="true"></a></span>
+<span id="cb83-43"><a href="#cb83-43" aria-hidden="true"></a>  sources_pdf.each <span class="kw">do</span> |dst|</span>
+<span id="cb83-44"><a href="#cb83-44" aria-hidden="true"></a>    src = dst.sub(<span class="ot">/_pdf/</span>,<span class="st">&quot;&quot;</span>)</span>
+<span id="cb83-45"><a href="#cb83-45" aria-hidden="true"></a>    file dst =&gt; src <span class="kw">do</span></span>
+<span id="cb83-46"><a href="#cb83-46" aria-hidden="true"></a>      s = <span class="dt">File</span>.read(src)</span>
+<span id="cb83-47"><a href="#cb83-47" aria-hidden="true"></a>      s = s.gsub(<span class="ot">/^###/</span>,<span class="st">&quot;#&quot;</span>).gsub(<span class="ot">/^####/</span>,<span class="st">&quot;##&quot;</span>).gsub(<span class="ot">/^#####/</span>,<span class="st">&quot;###&quot;</span>)</span>
+<span id="cb83-48"><a href="#cb83-48" aria-hidden="true"></a>      <span class="dt">File</span>.write(dst, s)</span>
+<span id="cb83-49"><a href="#cb83-49" aria-hidden="true"></a>    <span class="kw">end</span></span>
+<span id="cb83-50"><a href="#cb83-50" aria-hidden="true"></a>  <span class="kw">end</span></span>
+<span id="cb83-51"><a href="#cb83-51" aria-hidden="true"></a></span>
+<span id="cb83-52"><a href="#cb83-52" aria-hidden="true"></a>  <span class="dt">CLOBBER</span> &lt;&lt; <span class="st">&quot;LearningRake.pdf&quot;</span></span>
+<span id="cb83-53"><a href="#cb83-53" aria-hidden="true"></a><span class="kw">end</span></span></code></pre></div>
 <p>The points are:</p>
 <ul>
-<li>The definition of <code>sources</code> are changed. An intermediate file such as “sec_pdf1.md” is created in the <code>pdf</code> namespace. In the previous Rakefile, the source files are collected with <code>sources=FileList["sec*.md"]</code> statement. But the statment possibly picks up intermediate files <code>sec?_pdf.md</code>. So glob pattern is not appropriate in this version. So, the each source file is specified in the arguments of <code>FileList[]</code> method.</li>
+<li>The definition of <code>sources</code> are changed. An intermediate file such as “sec_pdf1.md” is created in the <code>pdf</code> namespace. The glob pattern <code>FileList["sec*.md"]</code> possibly picks up such intermediate files. Therefore, the each source file is specified in the arguments of <code>FileList[]</code> method.</li>
 <li>A new option <code>--metadata-file=</code> is given to Pandoc to import metadata.</li>
-<li>When creating the PDF, I used an intermediate file such as “sec_pdf1.md” with changed headings. Also, changing the heading is defined as a file task action. I used the <code>gsub</code> method instead of <code>gsub!</code> for string substitution. Since the return values ​​are different between the both, it is better not to use methods with exclamation. (It is prone to include bugs because <code>gsub!</code> returns <code>nil</code> when the replacement does not occur.)</li>
+<li>When creating the PDF, intermediate file tasks such as “sec_pdf1.md” are defined. The headings in “sec?.md” is changed in the file task action. A <code>gsub</code> method is used instead of <code>gsub!</code> for string substitution. Since the return values ​​are different between the both, it is better to use methods without exclamation. (Using <code>gsub!</code> is prone to include bugs because it returns <code>nil</code> when the replacement does not occur.)</li>
 </ul>
 <p>Defining tasks with the same name in different namespaces will not cause name conflicts. This works well especially for large projects.</p>
-<p>Give arguments to <code>rake</code> like this:</p>
+<p>Rake behaves as follows when it is given the arguments below.</p>
 <ul>
-<li><code>rake</code> =&gt; Both HTML and PDF are created</li>
-<li><code>rake html:build</code> =&gt; Only HTML is created</li>
-<li><code>rake pdf:build</code> =&gt; Only PDF is created</li>
-<li><code>rake clean</code> =&gt; Delete intermediate files</li>
-<li><code>rake clobber</code> =&gt; Delete all generated files</li>
+<li><code>rake</code> =&gt; Creates both HTML and PDF</li>
+<li><code>rake html:build</code> =&gt; Creates only HTML</li>
+<li><code>rake pdf:build</code> =&gt; Creates only PDF</li>
+<li><code>rake clean</code> =&gt; Deletes intermediate files</li>
+<li><code>rake clobber</code> =&gt; Deletes all generated files</li>
 </ul>
 <h4 id="the-advantage-of-namespaces">The advantage of namespaces</h4>
-<p>Namespaces are useful for organizing the contents of large Rakefiles. And a large Rakefile can often be split into two or more files. Usually, they include one main Rakefile and other libraries. Namespaces are especially useful in libraries to prevent task names from clashes with the other files.</p>
+<p>Namespaces are useful for a large Rakefiles and libraries. When Rakefile becomes very big, it is often split into two or more files. Usually, they are one main Rakefile and libraries. If you put a namespace to your library, you don’t need to worry about any clashes with the other files.</p>
 <p>On the other hand, a small Rakefile can be fine without namespaces.</p>
 <p>Namespaces are also useful for categorizing tasks. When you have a large number of tasks that are called from the command line, you should consider organizing them in namespaces. For example,</p>
 <pre><code># Database related tasks
@@ -1144,7 +1141,7 @@ $ rake db:create
 $ rake post:new
 ・・・・</code></pre>
 <p>This helps users remember commands easily.</p>
-<h3 id="other-features-of-rake">Other features of Rake</h3>
+<h3 id="other-rake-features">Other Rake features</h3>
 <p>Rake features that haven’t explained yet will be described here and next section. This section includes:</p>
 <ul>
 <li>Task arguments</li>
@@ -1160,23 +1157,23 @@ $ rake post:new
 <p>The task name is <code>hello</code> and the argument is <code>James</code>.</p>
 <p>If you want to pass multiple arguments, separate them with commas.</p>
 <pre><code>$ rake hello[James,Kelly]</code></pre>
-<p>Be careful that you can’t put spaces anywhere from the task name to the right bracket. This is because spaces have a special meaning on the command line. It is <em>argument delimiters</em>.</p>
+<p>Be careful that you can’t put spaces anywhere from the task name to the right bracket. This is because spaces have a special meaning on the command line. It is an <em>argument delimiter</em>.</p>
 <ul>
 <li><code>rake hello[James,Kelly]</code> =&gt; One argument <code>hello[James,Kelly]</code> is passed to the command <code>rake</code>. Rake analyzes it and recognizes that <code>hello</code> is the task name and <code>James</code> and <code>Kelly</code> are arguments to the task.</li>
 <li><code>rake hello[James, Kelly]</code> =&gt; Two arguments <code>hello[James,</code> and <code>Kelly]</code> are passed to the command <code>rake</code>. Rake recognizes that <code>hello[James,</code> is a task name because no closing bracket exists. But, since Rakefile doesn’t have such task, rake issues an error.</li>
 </ul>
-<p>If you want to put spaces in the argument, enclose it in double quotes (<code>"</code>). For further information, refer to <a href="https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html">Bash reference manual</a>.</p>
+<p>If you want to put spaces in the argument, enclose it with double quotes (<code>"</code>). For further information, refer to <a href="https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html">Bash reference manual</a>.</p>
 <pre><code>$ rake &quot;hello[James Robinson, Kelly Baker]&quot;</code></pre>
-<p>Bash recognizes that the characters between two double quotes is one argument. And it passes it to Rake as the first argument. Then, Rake determines that <code>hello</code> is the task. And that <code>James Robinson</code> and <code>Kelly Baker</code> are two arguments for the task.</p>
+<p>Bash recognizes that the characters between two double quotes is one argument. And Bash passes it to Rake as the first argument. Then, Rake determines that <code>hello</code> is a task name. And that <code>James Robinson</code> and <code>Kelly Baker</code> are two arguments for the task.</p>
 <p>On the other hand, a task definition in a Rakefile has parameters after the task name, separated by commas.</p>
 <pre><code>task :a, [:param1, :param2]</code></pre>
 <p>This task <code>a</code> has parameters <code>:param1</code> and <code>:param2</code>. Parameter names are usually symbols, but strings are also possible. If it has only one parameter, you don’t need to use an array.</p>
 <p>In the example above, there is no action in the task <code>a</code>, so the arguments have no effect. Arguments take effect in an action.</p>
 <p>The action (block) can have two parameters. The second parameter is an instance of TaskArguments class. The instance is initialized with the arguments given to the task.</p>
-<div class="sourceCode" id="cb90"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true"></a>task <span class="st">:hello</span>, [<span class="st">:person1</span>, <span class="st">:person2</span>] <span class="kw">do</span> |t, args|</span>
-<span id="cb90-2"><a href="#cb90-2" aria-hidden="true"></a>  print <span class="st">&quot;Hello, </span><span class="ot">#{</span>args.person1<span class="ot">}</span><span class="st">.\n&quot;</span></span>
-<span id="cb90-3"><a href="#cb90-3" aria-hidden="true"></a>  print <span class="st">&quot;Hello, </span><span class="ot">#{</span>args.person2<span class="ot">}</span><span class="st">.\n&quot;</span></span>
-<span id="cb90-4"><a href="#cb90-4" aria-hidden="true"></a><span class="kw">end</span></span></code></pre></div>
+<div class="sourceCode" id="cb89"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true"></a>task <span class="st">:hello</span>, [<span class="st">:person1</span>, <span class="st">:person2</span>] <span class="kw">do</span> |t, args|</span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true"></a>  print <span class="st">&quot;Hello, </span><span class="ot">#{</span>args.person1<span class="ot">}</span><span class="st">.\n&quot;</span></span>
+<span id="cb89-3"><a href="#cb89-3" aria-hidden="true"></a>  print <span class="st">&quot;Hello, </span><span class="ot">#{</span>args.person2<span class="ot">}</span><span class="st">.\n&quot;</span></span>
+<span id="cb89-4"><a href="#cb89-4" aria-hidden="true"></a><span class="kw">end</span></span></code></pre></div>
 <p>Block parameters are:</p>
 <ul>
 <li>t =&gt; instance of task “hello”</li>
@@ -1195,17 +1192,17 @@ Hello Kelly.</code></pre>
 <li>to_a =&gt; returns a list of values. <code>args.to_a</code> returns <code>["James", "Kelly", "David"]</code>.</li>
 <li>extras =&gt; When there are more arguments than parameters, the extra arguments are returned. <code>args.extras</code> returns <code>["David"]</code>.</li>
 <li>to_hash =&gt; Returns a hash that combines parameters and values. Extra arguments are discarded. <code>args.to_hash</code> returns <code>{:person1=&gt;"James", :person2=&gt;"Kelly"}</code>.</li>
-<li>each =&gt; Execute <code>each</code> method on hash of <code>to_hash</code>.</li>
+<li>each =&gt; Execute <code>each</code> method on the hash returned by <code>to_hash</code>.</li>
 </ul>
 <blockquote>
-<p>[R] The parameter name is used as a method name in the example above. But it is not actually defined as a method. Rake uses the <code>method_missing</code> method (BasicObject’s method) to return the value of the parameter name if the method name is not defined. Therefore, it looks as if the method with the parameter name was executed.</p>
+<p>[R] The parameter name is used as a method name in the example above. But it is not actually defined as a method. Rake uses the <code>method_missing</code> method (BasicObject’s method) to return the value of the parameter if the method name is not defined. Therefore, it looks as if a parameter name method was executed.</p>
 </blockquote>
-<p>You can also set default values ​​for parameters. Use the <code>with_defaults</code> method with a hash.</p>
-<div class="sourceCode" id="cb92"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true"></a>task <span class="st">:hello</span>, [<span class="st">:person1</span>, <span class="st">:person2</span>] <span class="kw">do</span> |t, args|</span>
-<span id="cb92-2"><a href="#cb92-2" aria-hidden="true"></a>  args.with_defaults <span class="st">person1: &quot;Dad&quot;</span>, <span class="st">person2: &quot;Mom&quot;</span></span>
-<span id="cb92-3"><a href="#cb92-3" aria-hidden="true"></a>  print <span class="st">&quot;Hello, </span><span class="ot">#{</span>args.person1<span class="ot">}</span><span class="st">.\n&quot;</span></span>
-<span id="cb92-4"><a href="#cb92-4" aria-hidden="true"></a>  print <span class="st">&quot;Hello, </span><span class="ot">#{</span>args.person2<span class="ot">}</span><span class="st">.\n&quot;</span></span>
-<span id="cb92-5"><a href="#cb92-5" aria-hidden="true"></a><span class="kw">end</span></span></code></pre></div>
+<p>You can also set parameters default values with the <code>with_defaults</code> method.</p>
+<div class="sourceCode" id="cb91"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true"></a>task <span class="st">:hello</span>, [<span class="st">:person1</span>, <span class="st">:person2</span>] <span class="kw">do</span> |t, args|</span>
+<span id="cb91-2"><a href="#cb91-2" aria-hidden="true"></a>  args.with_defaults <span class="st">person1: &quot;Dad&quot;</span>, <span class="st">person2: &quot;Mom&quot;</span></span>
+<span id="cb91-3"><a href="#cb91-3" aria-hidden="true"></a>  print <span class="st">&quot;Hello, </span><span class="ot">#{</span>args.person1<span class="ot">}</span><span class="st">.\n&quot;</span></span>
+<span id="cb91-4"><a href="#cb91-4" aria-hidden="true"></a>  print <span class="st">&quot;Hello, </span><span class="ot">#{</span>args.person2<span class="ot">}</span><span class="st">.\n&quot;</span></span>
+<span id="cb91-5"><a href="#cb91-5" aria-hidden="true"></a><span class="kw">end</span></span></code></pre></div>
 <p>The default values ​​are now <code>Dad</code> for <code>person1</code> and <code>Mom</code> for <code>person2</code>.</p>
 <pre><code>$ rake -f Rakefile2 hello[James,Kelly,David]
 Hello James.
@@ -1222,30 +1219,30 @@ Hello Mom.</code></pre>
 end</code></pre>
 <p>Prerequisites <code>prerequisite1</code> and <code>prerequisite2</code> are added to the task <code>hello</code>.</p>
 <p>Arguments are inherited by the prerequisites, so if you set the parameters in it, it can get the arguments.</p>
-<div class="sourceCode" id="cb95"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true"></a>task <span class="st">:how</span>, [<span class="st">:person1</span>, <span class="st">:person2</span>] =&gt; <span class="st">:hello</span> <span class="kw">do</span> |t, args|</span>
-<span id="cb95-2"><a href="#cb95-2" aria-hidden="true"></a>  print <span class="st">&quot;How are you, </span><span class="ot">#{</span>args.person1<span class="ot">}</span><span class="st">?\n&quot;</span></span>
-<span id="cb95-3"><a href="#cb95-3" aria-hidden="true"></a>  print <span class="st">&quot;How are you, </span><span class="ot">#{</span>args.person2<span class="ot">}</span><span class="st">?\n&quot;</span></span>
-<span id="cb95-4"><a href="#cb95-4" aria-hidden="true"></a><span class="kw">end</span></span>
-<span id="cb95-5"><a href="#cb95-5" aria-hidden="true"></a></span>
-<span id="cb95-6"><a href="#cb95-6" aria-hidden="true"></a>task <span class="st">:hello</span>, [<span class="st">:person1</span>, <span class="st">:person2</span>] <span class="kw">do</span> |t, args|</span>
-<span id="cb95-7"><a href="#cb95-7" aria-hidden="true"></a>  print <span class="st">&quot;Hello, </span><span class="ot">#{</span>args.person1<span class="ot">}</span><span class="st">.\n&quot;</span></span>
-<span id="cb95-8"><a href="#cb95-8" aria-hidden="true"></a>  print <span class="st">&quot;Hello, </span><span class="ot">#{</span>args.person2<span class="ot">}</span><span class="st">.\n&quot;</span></span>
-<span id="cb95-9"><a href="#cb95-9" aria-hidden="true"></a><span class="kw">end</span></span></code></pre></div>
+<div class="sourceCode" id="cb94"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true"></a>task <span class="st">:how</span>, [<span class="st">:person1</span>, <span class="st">:person2</span>] =&gt; <span class="st">:hello</span> <span class="kw">do</span> |t, args|</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true"></a>  print <span class="st">&quot;How are you, </span><span class="ot">#{</span>args.person1<span class="ot">}</span><span class="st">?\n&quot;</span></span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true"></a>  print <span class="st">&quot;How are you, </span><span class="ot">#{</span>args.person2<span class="ot">}</span><span class="st">?\n&quot;</span></span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true"></a><span class="kw">end</span></span>
+<span id="cb94-5"><a href="#cb94-5" aria-hidden="true"></a></span>
+<span id="cb94-6"><a href="#cb94-6" aria-hidden="true"></a>task <span class="st">:hello</span>, [<span class="st">:person1</span>, <span class="st">:person2</span>] <span class="kw">do</span> |t, args|</span>
+<span id="cb94-7"><a href="#cb94-7" aria-hidden="true"></a>  print <span class="st">&quot;Hello, </span><span class="ot">#{</span>args.person1<span class="ot">}</span><span class="st">.\n&quot;</span></span>
+<span id="cb94-8"><a href="#cb94-8" aria-hidden="true"></a>  print <span class="st">&quot;Hello, </span><span class="ot">#{</span>args.person2<span class="ot">}</span><span class="st">.\n&quot;</span></span>
+<span id="cb94-9"><a href="#cb94-9" aria-hidden="true"></a><span class="kw">end</span></span></code></pre></div>
 <p>Arguments given to the task <code>how</code> are also given to the prerequisite <code>hello</code>.</p>
 <pre><code>$ rake -f Rakefile3 how[James,Kelly,David]
 Hello James.
 Hello Kelly.
 How are you, James?
 How are you, Kelly?</code></pre>
-<p>The example above isn’t practical, but I hope it helps you understand the Rakefile arguments.</p>
-<p>In addition to arguments, environment variables can also be used to pass values ​​to Rake, but it is the old way. Rake didn’t support arguments prior to version 0.8.0. At that time, using environment variables was an alternative to arguments. There is no need to use environment variables as arguments in the later version.</p>
+<p>The example above isn’t practical, but I think it is useful to understand Rakefile arguments.</p>
+<p>In addition to arguments, environment variables can be used to pass values ​​to Rake, but it is the old way. Rake didn’t support arguments prior to version 0.8.0. At that time, using environment variables was an alternative to arguments. There is no need to use environment variables as arguments in the later version.</p>
 <h4 id="descriptions-and-command-line-options">Descriptions and command line options</h4>
 <p>You can add a description for a task. Use the <code>desc</code> command and put it just before the target task. Or, add a description with <code>add_description</code> method.</p>
-<div class="sourceCode" id="cb97"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true"></a>desc <span class="st">&quot;Say hello.&quot;</span></span>
-<span id="cb97-2"><a href="#cb97-2" aria-hidden="true"></a>task <span class="st">:hello</span> <span class="kw">do</span></span>
-<span id="cb97-3"><a href="#cb97-3" aria-hidden="true"></a>  print <span class="st">&quot;Hello.\n&quot;</span></span>
-<span id="cb97-4"><a href="#cb97-4" aria-hidden="true"></a><span class="kw">end</span></span>
-<span id="cb97-5"><a href="#cb97-5" aria-hidden="true"></a><span class="dt">Rake</span>::<span class="dt">Task</span>[<span class="st">:hello</span>].add_description <span class="st">&quot;Greeting task.&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb96"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true"></a>desc <span class="st">&quot;Say hello.&quot;</span></span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true"></a>task <span class="st">:hello</span> <span class="kw">do</span></span>
+<span id="cb96-3"><a href="#cb96-3" aria-hidden="true"></a>  print <span class="st">&quot;Hello.\n&quot;</span></span>
+<span id="cb96-4"><a href="#cb96-4" aria-hidden="true"></a><span class="kw">end</span></span>
+<span id="cb96-5"><a href="#cb96-5" aria-hidden="true"></a><span class="dt">Rake</span>::<span class="dt">Task</span>[<span class="st">:hello</span>].add_description <span class="st">&quot;Greeting task.&quot;</span></span></code></pre></div>
 <p>The description string is set to the task instance when the task is defined. The description is displayed with <code>rake -T</code> or <code>rake -D</code>.</p>
 <pre><code>$ rake -f Rakefile4 -T
 rake hello  # Say hello / Greeting task
@@ -1255,30 +1252,34 @@ rake hello
     Greeting task.
 
 $</code></pre>
-<p>If a task doesn’t have description, it won’t be displayed. Only the tasks with descriptions are displayed. Descriptions should only be attached to tasks that users invoke from the command line. For example, the following is the Rakefile in the previous section,</p>
-<div class="sourceCode" id="cb99"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true"></a>・・・・</span>
-<span id="cb99-2"><a href="#cb99-2" aria-hidden="true"></a>desc <span class="st">&quot;Creates both HTML and PDF files&quot;</span></span>
-<span id="cb99-3"><a href="#cb99-3" aria-hidden="true"></a>task <span class="st">default: </span><span class="ot">%w[</span><span class="st">html:build pdf:build</span><span class="ot">]</span></span>
-<span id="cb99-4"><a href="#cb99-4" aria-hidden="true"></a>・・・・</span>
-<span id="cb99-5"><a href="#cb99-5" aria-hidden="true"></a>namespace <span class="st">&quot;html&quot;</span> <span class="kw">do</span></span>
-<span id="cb99-6"><a href="#cb99-6" aria-hidden="true"></a>  desc <span class="st">&quot;Create a HTML file&quot;</span></span>
-<span id="cb99-7"><a href="#cb99-7" aria-hidden="true"></a>  task <span class="st">build: </span><span class="ot">%w[</span><span class="st">docs/my first Rake.html docs/style.css</span><span class="ot">]</span></span>
-<span id="cb99-8"><a href="#cb99-8" aria-hidden="true"></a>・・・・</span>
-<span id="cb99-9"><a href="#cb99-9" aria-hidden="true"></a>namespace <span class="st">&quot;pdf&quot;</span> <span class="kw">do</span></span>
-<span id="cb99-10"><a href="#cb99-10" aria-hidden="true"></a>  desc <span class="st">&quot;Create a PDF file&quot;</span></span>
-<span id="cb99-11"><a href="#cb99-11" aria-hidden="true"></a>  task <span class="st">build: </span><span class="ot">%w[</span><span class="st">My First Rake.pdf</span><span class="ot">]</span></span>
-<span id="cb99-12"><a href="#cb99-12" aria-hidden="true"></a>・・・・</span></code></pre></div>
+<p>If a task doesn’t have description, it won’t be displayed. Only the tasks with descriptions are displayed. Descriptions should be attached to tasks that users invoke from the command line. For example, the following is the Rakefile in the previous section,</p>
+<div class="sourceCode" id="cb98"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true"></a>・・・・</span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true"></a>desc <span class="st">&quot;Creates both HTML and PDF files&quot;</span></span>
+<span id="cb98-3"><a href="#cb98-3" aria-hidden="true"></a>task <span class="st">default: </span><span class="ot">%w[</span><span class="st">html:build pdf:build</span><span class="ot">]</span></span>
+<span id="cb98-4"><a href="#cb98-4" aria-hidden="true"></a>・・・・</span>
+<span id="cb98-5"><a href="#cb98-5" aria-hidden="true"></a>namespace <span class="st">&quot;html&quot;</span> <span class="kw">do</span></span>
+<span id="cb98-6"><a href="#cb98-6" aria-hidden="true"></a>  desc <span class="st">&quot;Create a HTML file&quot;</span></span>
+<span id="cb98-7"><a href="#cb98-7" aria-hidden="true"></a>  task <span class="st">build: </span><span class="ot">%w[</span><span class="st">docs/my first Rake.html docs/style.css</span><span class="ot">]</span></span>
+<span id="cb98-8"><a href="#cb98-8" aria-hidden="true"></a>・・・・</span>
+<span id="cb98-9"><a href="#cb98-9" aria-hidden="true"></a>namespace <span class="st">&quot;pdf&quot;</span> <span class="kw">do</span></span>
+<span id="cb98-10"><a href="#cb98-10" aria-hidden="true"></a>  desc <span class="st">&quot;Create a PDF file&quot;</span></span>
+<span id="cb98-11"><a href="#cb98-11" aria-hidden="true"></a>  task <span class="st">build: </span><span class="ot">%w[</span><span class="st">My First Rake.pdf</span><span class="ot">]</span></span>
+<span id="cb98-12"><a href="#cb98-12" aria-hidden="true"></a>・・・・</span></code></pre></div>
 <p>You can see the task description from the command line.</p>
 <pre><code># change the current directory to example/example6
-$ rake -T
+$ rake -f Rakefile1 -T
 rake clean # Remove any temporary products
 rake clobber # Remove any generated files
 rake default # creates both HTML and PDF files
 rake html:build # create a HTML file
 rake pdf:build # create a PDF file</code></pre>
-<p>WHen a user see the message above, they can know the task name to give <code>rake</code>. You could say that the description is a comment for the user.</p>
+<p>When a user see the message above, they can know the task name to give <code>rake</code>. You could say that the description is a comment for users.</p>
 <p>On the other hand, when the developer wants to leave a note about the program, they should use Ruby comments (<code># ... ...</code>).</p>
-<p>The <code>-T</code> option only prints what fits on one line, while the <code>-D</code> option prints the entire description. You can add a pattern to limit the tasks to display.</p>
+<p>The <code>-T</code> option only prints what fits on one line, while the <code>-D</code> option prints the entire description. Users can add a pattern to limit the tasks to display.</p>
+<pre><code>$ rake -f Rakefile1 -T &#39;^c&#39;
+rake clean # Remove any temporary products
+rake clobber # Remove any generated files</code></pre>
+<p>The pattern is a Ruby RegExp literal without slashes (/), not a Glob pattern. Some characters, for example asterisk (*), are translated by Bash So, users should surround the pattern with single quotes (’).</p>
 <p>The following options are for developers.</p>
 <ul>
 <li><code>-AT</code> =&gt; Show all defined tasks. Prerequisites that are not defined in the Rakefile are not displayed.</li>
@@ -1300,10 +1301,20 @@ rake pdf:build # create a PDF file</code></pre>
 <li>Place the libraries in the <code>rakelib</code> directory under the top directory (the directory containing the Rakefile)</li>
 </ul>
 <p>There is no programmatic master-slave relationship between the Rakefile and the library, but the Rakefile in the top directory is called the “main Rakefile”.</p>
+<p>A file <code>goodby.rake</code> is in the directory <code>example/example7/rakelib</code>.</p>
+<div class="sourceCode" id="cb101"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true"></a>task <span class="st">:goodby</span>, [<span class="st">:person1</span>, <span class="st">:person2</span>] <span class="kw">do</span> |t, args|</span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true"></a>  print <span class="st">&quot;Good by, </span><span class="ot">#{</span>args.person1<span class="ot">}</span><span class="st">.\n&quot;</span></span>
+<span id="cb101-3"><a href="#cb101-3" aria-hidden="true"></a>  print <span class="st">&quot;Good by, </span><span class="ot">#{</span>args.person2<span class="ot">}</span><span class="st">.\n&quot;</span></span>
+<span id="cb101-4"><a href="#cb101-4" aria-hidden="true"></a><span class="kw">end</span></span></code></pre></div>
+<p>This file is a library Rakefile and the task <code>goodby</code> can be called from the command line.</p>
+<pre><code># current directory is example/example7
+$ rake -f Rakefile1 goodby[James,Kelly]
+Good by, James.
+Good by, Kelly.</code></pre>
 <h3 id="multitask-method-and-testtask-class">Multitask method and TestTask class</h3>
 <h4 id="multitask-method">Multitask method</h4>
-<p>“Multitask” here refers to processing using Rake’s “multitask” method, not “multitask” in general. A task may contain multiple tasks that do not affect each other. At that time, it is faster to execute them in parallel in multi-thread than to execute them sequentially in one thread. The method “multitask” is the task for that.</p>
-<p>As an example, we will use a program <code>fre.rb</code> that counts each word in a text file. The <code>example/example8</code> folder contains this program, but I won’t explain the details of the code. This program scans the file given as an argument, finds the frequency of occurrence of each word, and displays the number of words and the top 10 words and the count. Here, “word” means string separated by space characters (<code>/\s/</code> = <code>[\t\r\n\f\v]</code>).</p>
+<p>“Multitask” here refers to a method name, not “multitask” in general. The method <code>multitask</code> invokes prerequisites concurrently. The prerequisites must not to affect each other, or bad error will happen. Generally, it is faster to use <code>multitask</code> than <code>task</code> because <code>task</code> invokes prerequisites sequentially.</p>
+<p>A program <code>fre.rb</code>, which counts each word in a text file, is located at <code>example/example8</code>. The details of <code>fre.rb</code> is left out here. This program scans the files given as arguments, finds the frequency of occurrence of each word, and displays the number of words and the top 10 words and the count. Here, “word” means string separated by space characters (<code>/\s/</code> = <code>[\t\r\n\f\v]</code>).</p>
 <pre><code>$ ruby fre.rb ../../sec1.md
 Number of words: 2030
 Top 10 words
@@ -1319,54 +1330,54 @@ Top 10 words
 &quot;to&quot;       =&gt;  27</code></pre>
 <p>This shows that the total number of words is 2030 and the most frequent occurrence word is “the”. Now, prepare two Rakefiles <code>Rakefile1</code> and <code>Rakefile2</code>.</p>
 <p>Rakefile1</p>
-<div class="sourceCode" id="cb102"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true"></a>require <span class="st">&#39;rake/clean&#39;</span></span>
-<span id="cb102-2"><a href="#cb102-2" aria-hidden="true"></a></span>
-<span id="cb102-3"><a href="#cb102-3" aria-hidden="true"></a>files = <span class="dt">FileList</span>[<span class="st">&quot;../../sec*.md&quot;</span>]</span>
-<span id="cb102-4"><a href="#cb102-4" aria-hidden="true"></a></span>
-<span id="cb102-5"><a href="#cb102-5" aria-hidden="true"></a>task <span class="st">default: </span>files</span>
-<span id="cb102-6"><a href="#cb102-6" aria-hidden="true"></a></span>
-<span id="cb102-7"><a href="#cb102-7" aria-hidden="true"></a>files.each <span class="kw">do</span> |f|</span>
-<span id="cb102-8"><a href="#cb102-8" aria-hidden="true"></a>  task f <span class="kw">do</span></span>
-<span id="cb102-9"><a href="#cb102-9" aria-hidden="true"></a>    sh <span class="st">&quot;ruby fre.rb </span><span class="ot">#{</span>f<span class="ot">}</span><span class="st"> &gt; </span><span class="ot">#{</span>f.pathmap(<span class="st">&#39;%f&#39;</span>).ext(<span class="st">&#39;txt&#39;</span>)<span class="ot">}</span><span class="st">&quot;</span></span>
-<span id="cb102-10"><a href="#cb102-10" aria-hidden="true"></a>  <span class="kw">end</span></span>
-<span id="cb102-11"><a href="#cb102-11" aria-hidden="true"></a><span class="kw">end</span></span>
-<span id="cb102-12"><a href="#cb102-12" aria-hidden="true"></a></span>
-<span id="cb102-13"><a href="#cb102-13" aria-hidden="true"></a><span class="dt">CLEAN</span>.include files.pathmap(<span class="st">&#39;%f&#39;</span>).ext(<span class="st">&#39;txt&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb104"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true"></a>require <span class="st">&#39;rake/clean&#39;</span></span>
+<span id="cb104-2"><a href="#cb104-2" aria-hidden="true"></a></span>
+<span id="cb104-3"><a href="#cb104-3" aria-hidden="true"></a>files = <span class="dt">FileList</span>[<span class="st">&quot;../../sec*.md&quot;</span>]</span>
+<span id="cb104-4"><a href="#cb104-4" aria-hidden="true"></a></span>
+<span id="cb104-5"><a href="#cb104-5" aria-hidden="true"></a>task <span class="st">default: </span>files</span>
+<span id="cb104-6"><a href="#cb104-6" aria-hidden="true"></a></span>
+<span id="cb104-7"><a href="#cb104-7" aria-hidden="true"></a>files.each <span class="kw">do</span> |f|</span>
+<span id="cb104-8"><a href="#cb104-8" aria-hidden="true"></a>  task f <span class="kw">do</span></span>
+<span id="cb104-9"><a href="#cb104-9" aria-hidden="true"></a>    sh <span class="st">&quot;ruby fre.rb </span><span class="ot">#{</span>f<span class="ot">}</span><span class="st"> &gt; </span><span class="ot">#{</span>f.pathmap(<span class="st">&#39;%f&#39;</span>).ext(<span class="st">&#39;txt&#39;</span>)<span class="ot">}</span><span class="st">&quot;</span></span>
+<span id="cb104-10"><a href="#cb104-10" aria-hidden="true"></a>  <span class="kw">end</span></span>
+<span id="cb104-11"><a href="#cb104-11" aria-hidden="true"></a><span class="kw">end</span></span>
+<span id="cb104-12"><a href="#cb104-12" aria-hidden="true"></a></span>
+<span id="cb104-13"><a href="#cb104-13" aria-hidden="true"></a><span class="dt">CLEAN</span>.include files.pathmap(<span class="st">&#39;%f&#39;</span>).ext(<span class="st">&#39;txt&#39;</span>)</span></code></pre></div>
 <p>This <code>Rakefile1</code> calculates the word frequency of the files from <code>../../sec1.md</code> to <code>../../sec7.md</code> and writes the result to files.</p>
 <p><code>Rakefile2</code> is the same except that the output file name is different and the <code>task</code> method on line 5 is replaced with the <code>multitask</code> method.</p>
-<div class="sourceCode" id="cb103"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true"></a>multitask <span class="st">default: </span>files</span></code></pre></div>
+<div class="sourceCode" id="cb105"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true"></a>multitask <span class="st">default: </span>files</span></code></pre></div>
 <p>The <code>multitask</code> method processes tasks concurrently in separate threads. It is expected to work faster than <code>Rakefile1</code>. We will use Ruby’s Benchmark library to measure each execution time to compare. The program <code>bm.rb</code> is as follows.</p>
-<div class="sourceCode" id="cb104"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true"></a>require <span class="st">&#39;benchmark&#39;</span></span>
-<span id="cb104-2"><a href="#cb104-2" aria-hidden="true"></a></span>
-<span id="cb104-3"><a href="#cb104-3" aria-hidden="true"></a><span class="dt">Benchmark</span>.bm <span class="kw">do</span> |x|</span>
-<span id="cb104-4"><a href="#cb104-4" aria-hidden="true"></a>  x.report {system <span class="st">&quot;rake -f Rakefile1 -q&quot;</span>}</span>
-<span id="cb104-5"><a href="#cb104-5" aria-hidden="true"></a>  x.report {system <span class="st">&quot;rake -f Rakefile2 -q&quot;</span>}</span>
-<span id="cb104-6"><a href="#cb104-6" aria-hidden="true"></a><span class="kw">end</span></span></code></pre></div>
-<p>Refer to the <a href="https://ruby-doc.org/stdlib-3.1.2/libdoc/benchmark/rdoc/Benchmark.html#method-c-bm">Ruby documentation</a> for how to use the benchmark library.</p>
+<div class="sourceCode" id="cb106"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true"></a>require <span class="st">&#39;benchmark&#39;</span></span>
+<span id="cb106-2"><a href="#cb106-2" aria-hidden="true"></a></span>
+<span id="cb106-3"><a href="#cb106-3" aria-hidden="true"></a><span class="dt">Benchmark</span>.bm <span class="kw">do</span> |x|</span>
+<span id="cb106-4"><a href="#cb106-4" aria-hidden="true"></a>  x.report {system <span class="st">&quot;rake -f Rakefile1 -q&quot;</span>}</span>
+<span id="cb106-5"><a href="#cb106-5" aria-hidden="true"></a>  x.report {system <span class="st">&quot;rake -f Rakefile2 -q&quot;</span>}</span>
+<span id="cb106-6"><a href="#cb106-6" aria-hidden="true"></a><span class="kw">end</span></span></code></pre></div>
+<p>Refer to the <a href="https://ruby-doc.org/stdlib-3.1.2/libdoc/benchmark/rdoc/Benchmark.html#method-c-bm">Ruby documentation</a> for further information about benchmark library.</p>
 <p>Run “bm.rb”.</p>
 <pre><code>$ ruby bm.rb
        user     system      total        real
    0.000179   0.000043   0.566276 (  0.569218)
    0.000130   0.000031   0.980284 (  0.271294)</code></pre>
-<p>The first row is the execution time when the task method was invoked sequentially and the second row is the one when the task was invoked concurrently. Both finishes in an instant, so you may feel there is no difference. But <code>Rakefile2</code> was two times faster than <code>Rakefile1</code> as the results above.</p>
-<p>In order to use multitasking, it is necessary that each task does not interfere. You can expect speed improvements in the multitask method if you organize your tasks well and avoid interference.</p>
+<p>The first row is the execution time when the tasks were invoked sequentially (Rakefile1) and the second row is the one when the tasks were invoked concurrently (Rakefile2). Both finishes in an instant, so you may feel there is no difference. But <code>Rakefile2</code> was two times faster than <code>Rakefile1</code> as the results above.</p>
+<p>You can expect speed improvements in the multitask method if you organize your tasks well and avoid interference.</p>
 <h4 id="testtask-class">TestTask class</h4>
-<p>The final topic is TestTask class. The current Ruby standard test library is minitest. Information about minitest can be found on its <a href="https://www.rubydoc.info/gems/minitest">homepage</a>. The explanation of minitest is left out here in this section. But I think that using minitest is not so difficult. If you use it a few times, you will get the hang of it.</p>
+<p>The final topic is TestTask class. The current Ruby standard test library is minitest. Information about minitest can be found on its <a href="https://www.rubydoc.info/gems/minitest">homepage</a>. The explanation of minitest is left out here. But I think that using minitest is not so difficult. If you use it a few times, you will get the hang of it.</p>
 <p>Usually, test programs are collected in the <code>test</code> directory. Put your Rakefile in the directory and you can run your tests concurrently.</p>
-<p>Since creating test programs here would be a pretty big work, I’ll leave out it and just explain Rakefile and TestTask here.</p>
-<div class="sourceCode" id="cb106"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true"></a>require <span class="st">&quot;rake/testtask&quot;</span></span>
-<span id="cb106-2"><a href="#cb106-2" aria-hidden="true"></a></span>
-<span id="cb106-3"><a href="#cb106-3" aria-hidden="true"></a><span class="dt">FileList</span>[<span class="st">&#39;test*.rb&#39;</span>].each <span class="kw">do</span> |file|</span>
-<span id="cb106-4"><a href="#cb106-4" aria-hidden="true"></a>  <span class="dt">Rake</span>::<span class="dt">TestTask</span>.new <span class="kw">do</span> |t|</span>
-<span id="cb106-5"><a href="#cb106-5" aria-hidden="true"></a>    t.libs &lt;&lt; <span class="st">&quot;test&quot;</span></span>
-<span id="cb106-6"><a href="#cb106-6" aria-hidden="true"></a>    t.test_files = [file]</span>
-<span id="cb106-7"><a href="#cb106-7" aria-hidden="true"></a>    t.verbose = <span class="dv">true</span></span>
-<span id="cb106-8"><a href="#cb106-8" aria-hidden="true"></a>  <span class="kw">end</span></span>
-<span id="cb106-9"><a href="#cb106-9" aria-hidden="true"></a><span class="kw">end</span></span></code></pre></div>
+<p>Since creating test programs here would be a pretty big work, I’ll leave it out and just explain Rakefile and TestTask here.</p>
+<div class="sourceCode" id="cb108"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true"></a>require <span class="st">&quot;rake/testtask&quot;</span></span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true"></a></span>
+<span id="cb108-3"><a href="#cb108-3" aria-hidden="true"></a><span class="dt">FileList</span>[<span class="st">&#39;test*.rb&#39;</span>].each <span class="kw">do</span> |file|</span>
+<span id="cb108-4"><a href="#cb108-4" aria-hidden="true"></a>  <span class="dt">Rake</span>::<span class="dt">TestTask</span>.new <span class="kw">do</span> |t|</span>
+<span id="cb108-5"><a href="#cb108-5" aria-hidden="true"></a>    t.libs &lt;&lt; <span class="st">&quot;test&quot;</span></span>
+<span id="cb108-6"><a href="#cb108-6" aria-hidden="true"></a>    t.test_files = [file]</span>
+<span id="cb108-7"><a href="#cb108-7" aria-hidden="true"></a>    t.verbose = <span class="dv">true</span></span>
+<span id="cb108-8"><a href="#cb108-8" aria-hidden="true"></a>  <span class="kw">end</span></span>
+<span id="cb108-9"><a href="#cb108-9" aria-hidden="true"></a><span class="kw">end</span></span></code></pre></div>
 <p>In this example, it is assumed that the names of test files start with “test” such as “test_word_count.rb”.</p>
 <ul>
 <li>Require <code>rake/testtask</code></li>
-<li>Create a FileList instance of test files on the 3rd line and invoke its each method.</li>
+<li>Create a FileList instance of test files on the 3rd line and invoke <code>each</code> method.</li>
 <li>Create a TestTask instance with <code>Rake::TestTask.new</code>. TestTask class and Task class are different. But they have relationship. When a TestTask instance is created, the same name Task instance is also created. After the Rakefile is executed, the tasks will be invoked.</li>
 <li>The block argument <code>t</code> is the TestTask instance.</li>
 <li><code>t.libs</code> is the list of directories added to $LOAD_PATH. Its default is <code>lib</code>.</li>
@@ -1376,7 +1387,7 @@ Top 10 words
 <p>Run the test task from the command line. ( There’s no example in this tutorial.)</p>
 <pre><code>$ rake test</code></pre>
 <h4 id="conclusion">Conclusion</h4>
-<p>The last section may be difficult for beginners. But section 1 to 4 is enough to write a Rakefile. So, read the first 4 sections and practice writing your Rakefiles. It would be good experience for you to understand the rest of the tutorial.</p>
+<p>The last section may be difficult for beginners. But first 4 sections are enough to write a Rakefile. So, read them first and practice writing your Rakefiles. The experience gives you deeper understanding. Then, read the rest of the tutorial. You would understand them thanks to your practice experience.</p>
 <p>This tutorial itself also uses Rake to generate HTML from markdown. See the Rakefile in the <a href="https://github.com/ToshioCP/Rake-tutorial-for-beginners-en">repository</a>. It is similar to the Rakefile in section 4.</p>
 <p>Thank you for having read this tutorial.</p>
 </body>

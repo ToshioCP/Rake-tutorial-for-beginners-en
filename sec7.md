@@ -2,14 +2,14 @@
 
 #### Multitask method
 
-"Multitask" here refers to processing using Rake's "multitask" method, not "multitask" in general.
-A task may contain multiple tasks that do not affect each other.
-At that time, it is faster to execute them in parallel in multi-thread than to execute them sequentially in one thread.
-The method "multitask" is the task for that.
+"Multitask" here refers to a method name, not "multitask" in general.
+The method `multitask` invokes prerequisites concurrently.
+The prerequisites must not to affect each other, or bad error will happen.
+Generally, it is faster to use `multitask` than `task` because `task` invokes prerequisites sequentially.
 
-As an example, we will use a program `fre.rb` that counts each word in a text file.
-The `example/example8` folder contains this program, but I won't explain the details of the code.
-This program scans the file given as an argument, finds the frequency of occurrence of each word, and displays the number of words and the top 10 words and the count.
+A program `fre.rb`, which counts each word in a text file, is located at `example/example8`.
+The details of `fre.rb` is left out here.
+This program scans the files given as arguments, finds the frequency of occurrence of each word, and displays the number of words and the top 10 words and the count.
 Here, "word" means string separated by space characters (`/\s/` = `[\t\r\n\f\v]`).
 
 ```
@@ -71,7 +71,7 @@ Benchmark.bm do |x|
 end
 ```
 
-Refer to the [Ruby documentation](https://ruby-doc.org/stdlib-3.1.2/libdoc/benchmark/rdoc/Benchmark.html#method-c-bm) for how to use the benchmark library.
+Refer to the [Ruby documentation](https://ruby-doc.org/stdlib-3.1.2/libdoc/benchmark/rdoc/Benchmark.html#method-c-bm) for further information about benchmark library.
 
 Run "bm.rb".
 
@@ -82,11 +82,10 @@ $ ruby bm.rb
    0.000130   0.000031   0.980284 (  0.271294)
 ```
 
-The first row is the execution time when the task method was invoked sequentially and the second row is the one when the task was invoked concurrently.
+The first row is the execution time when the tasks were invoked sequentially (Rakefile1) and the second row is the one when the tasks were invoked concurrently (Rakefile2).
 Both finishes in an instant, so you may feel there is no difference.
 But `Rakefile2` was two times faster than `Rakefile1` as the results above.
 
-In order to use multitasking, it is necessary that each task does not interfere.
 You can expect speed improvements in the multitask method if you organize your tasks well and avoid interference.
 
 #### TestTask class
@@ -94,14 +93,14 @@ You can expect speed improvements in the multitask method if you organize your t
 The final topic is TestTask class.
 The current Ruby standard test library is minitest.
 Information about minitest can be found on its [homepage](https://www.rubydoc.info/gems/minitest).
-The explanation of minitest is left out here in this section.
+The explanation of minitest is left out here.
 But I think that using minitest is not so difficult.
 If you use it a few times, you will get the hang of it.
 
 Usually, test programs are collected in the `test` directory.
 Put your Rakefile in the directory and you can run your tests concurrently.
 
-Since creating test programs here would be a pretty big work, I'll leave out it and just explain Rakefile and TestTask here.
+Since creating test programs here would be a pretty big work, I'll leave it out and just explain Rakefile and TestTask here.
 
 ```ruby
 require "rake/testtask"
@@ -118,7 +117,7 @@ end
 In this example, it is assumed that the names of test files start with "test" such as "test_word_count.rb".
 
 - Require `rake/testtask`
-- Create a FileList instance of test files on the 3rd line and invoke its each method.
+- Create a FileList instance of test files on the 3rd line and invoke `each` method.
 - Create a TestTask instance with `Rake::TestTask.new`.
 TestTask class and Task class are different.
 But they have relationship.
@@ -144,9 +143,11 @@ $ rake test
 #### Conclusion
 
 The last section may be difficult for beginners.
-But section 1 to 4 is enough to write a Rakefile.
-So, read the first 4 sections and practice writing your Rakefiles.
-It would be good experience for you to understand the rest of the tutorial.
+But first 4 sections are enough to write a Rakefile.
+So, read them first and practice writing your Rakefiles.
+The experience gives you deeper understanding.
+Then, read the rest of the tutorial.
+You would understand them thanks to your practice experience.
 
 This tutorial itself also uses Rake to generate HTML from markdown.
 See the Rakefile in the [repository](https://github.com/ToshioCP/Rake-tutorial-for-beginners-en).
