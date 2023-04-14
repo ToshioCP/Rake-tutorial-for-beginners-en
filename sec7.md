@@ -105,19 +105,17 @@ Since creating test programs here would be a pretty big work, I'll leave it out 
 ```ruby
 require "rake/testtask"
 
-FileList['test*.rb'].each do |file|
-  Rake::TestTask.new do |t|
-    t.libs << "test"
-    t.test_files = [file]
-    t.verbose = true
-  end
+Rake::TestTask.new do |t|
+  t.libs << "test"
+  t.test_files = FileList['test/test*.rb']
+  t.verbose = true
 end
+
 ```
 
 In this example, it is assumed that the names of test files start with "test" such as "test_word_count.rb".
 
 - Require `rake/testtask`
-- Create a FileList instance of test files on the 3rd line and invoke `each` method.
 - Create a TestTask instance with `Rake::TestTask.new`.
 TestTask class and Task class are different.
 But they have relationship.
@@ -128,7 +126,7 @@ After the Rakefile is executed, the tasks will be invoked.
 Its default is `lib`.
 - `test_files` method explicitly defines the list of test files to be included in a test.
 Each test file is a ruby program with minitest.
-Make sure that the test files doesn't have any conflicts.
+Make sure that the test files don't have any conflicts.
 For example, if your test programs read or write files, the clash tends to happen.
 - `t.verbose=true` will show information about the test.
 The default is `false`.
